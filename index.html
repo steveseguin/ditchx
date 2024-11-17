@@ -13,12 +13,47 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
     
     <!-- Tailwind CSS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blue: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        },
+                        gray: {
+                            50: '#f9fafb',
+                            500: '#6b7280',
+                            600: '#4b5563',
+                            700: '#374151',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    
+    <!-- Custom styles -->
+    <style>
+        /* Additional custom styles if needed */
+        body {
+            margin: 0;
+            min-height: 100vh;
+        }
+        .gradient-bg {
+            background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+        }
+    </style>
 </head>
-<body>
+<body class="gradient-bg">
     <div id="root"></div>
 
     <script type="text/babel">
+        // [Previous React component code remains exactly the same]
         // Icon components to replace lucide-react
         const Copy = ({ size = 16, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" 
@@ -83,7 +118,7 @@
             };
 
             return (
-                <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-8">
+                <div className="min-h-screen p-8">
                     <div className="max-w-2xl mx-auto space-y-8">
                         <div className="text-center space-y-4">
                             <h1 className="text-4xl font-bold text-blue-900">Quick Platform Switch</h1>
@@ -138,10 +173,11 @@
                                     <div className="border-t pt-4">
                                         <h3 className="font-medium mb-2">Your Redirect Link</h3>
                                         <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                                            <code className="flex-1 font-mono text-sm">{generateRedirectUrl()}</code>
+                                            <code className="flex-1 font-mono text-sm break-all">{generateRedirectUrl()}</code>
                                             <button
                                                 onClick={() => copyToClipboard(generateRedirectUrl())}
-                                                className="p-2 hover:bg-gray-200 rounded-full"
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                                title="Copy to clipboard"
                                             >
                                                 <Copy size={16} className="text-gray-600" />
                                             </button>
@@ -151,12 +187,13 @@
                                     <div>
                                         <h3 className="font-medium mb-2">Direct Link</h3>
                                         <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                                            <code className="flex-1 font-mono text-sm">{generateDirectUrl()}</code>
+                                            <code className="flex-1 font-mono text-sm break-all">{generateDirectUrl()}</code>
                                             <a
                                                 href={generateDirectUrl()}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="p-2 hover:bg-gray-200 rounded-full"
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                                title="Open link"
                                             >
                                                 <ExternalLink size={16} className="text-gray-600" />
                                             </a>
@@ -166,10 +203,11 @@
                                     <div>
                                         <h3 className="font-medium mb-2">HTML Snippet</h3>
                                         <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                                            <code className="flex-1 font-mono text-sm">{generateHtmlSnippet()}</code>
+                                            <code className="flex-1 font-mono text-sm break-all">{generateHtmlSnippet()}</code>
                                             <button
                                                 onClick={() => copyToClipboard(generateHtmlSnippet())}
-                                                className="p-2 hover:bg-gray-200 rounded-full"
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                                title="Copy to clipboard"
                                             >
                                                 <Copy size={16} className="text-gray-600" />
                                             </button>
@@ -179,10 +217,11 @@
                                     <div>
                                         <h3 className="font-medium mb-2">Markdown Snippet</h3>
                                         <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                                            <code className="flex-1 font-mono text-sm">{generateMarkdownSnippet()}</code>
+                                            <code className="flex-1 font-mono text-sm break-all">{generateMarkdownSnippet()}</code>
                                             <button
                                                 onClick={() => copyToClipboard(generateMarkdownSnippet())}
-                                                className="p-2 hover:bg-gray-200 rounded-full"
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                                title="Copy to clipboard"
                                             >
                                                 <Copy size={16} className="text-gray-600" />
                                             </button>
