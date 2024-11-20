@@ -283,3 +283,107 @@
                             </div>
 
                             {targetHandle && (
+                                <div className="space-y-8 pt-6">
+                                    <div>
+                                        <h3 className="font-semibold text-gray-800 mb-3">Direct Link</h3>
+                                        <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            <code className="flex-1 font-mono text-sm break-all text-gray-700">
+                                                {platform === 'bluesky' ? 
+                                                    `https://bsky.app/profile/${targetHandle}` : 
+                                                    directPlatformUrl}
+                                            </code>
+                                            <a
+                                                href={platform === 'bluesky' ? 
+                                                    `https://bsky.app/profile/${targetHandle}` : 
+                                                    directPlatformUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                                                title="Open link"
+                                            >
+                                                <ExternalLink size={18} className="text-gray-600" />
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
+                                        <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            <code className="flex-1 font-mono text-sm break-all text-gray-700">
+                                                {platform === 'bluesky' ? 
+                                                    `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
+                                                    generateRedirectUrl()}
+                                            </code>
+                                            <button
+                                                onClick={() => copyToClipboard(platform === 'bluesky' ? 
+                                                    `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
+                                                    generateRedirectUrl()
+                                                )}
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                                                title="Copy to clipboard"
+                                            >
+                                                <Copy size={18} className="text-gray-600" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {xUsername && (
+                                        <>
+                                            <div className="border-t pt-6">
+                                                <h3 className="font-semibold text-gray-800 mb-3">Redirect Link</h3>
+                                                <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                                    <code className="flex-1 font-mono text-sm break-all text-gray-700">
+                                                        {generateRedirectUrl()}
+                                                    </code>
+                                                    <button
+                                                        onClick={() => copyToClipboard(generateRedirectUrl())}
+                                                        className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                                                        title="Copy to clipboard"
+                                                    >
+                                                        <Copy size={18} className="text-gray-600" />
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-8">
+                                                <SnippetSection 
+                                                    title="HTML Snippet"
+                                                    code={generateHtmlSnippet()}
+                                                    preview={generateHtmlSnippet()}
+                                                />
+                                                <SnippetSection 
+                                                    title="Markdown Snippet"
+                                                    code={generateMarkdownSnippet()}
+                                                    preview={<a href={generateRedirectUrl()} className="text-primary-600 hover:text-primary-700">
+                                                        Find me on {platform}
+                                                    </a>}
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
+                                <ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
+                                    <li>Enter your X username and your new platform handle</li>
+                                    <li>Copy your redirect link or HTML/Markdown snippet</li>
+                                    <li>Share it in your X bio or posts</li>
+                                    <li>Visitors will be redirected to your new profile</li>
+                                </ol>
+                                <div className="mt-6 bg-primary-50 rounded-lg p-4 text-primary-700">
+                                    No login or database required - everything is encoded in the URL!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SimpleRedirector />);
+    </script>
+</body>
+</html>
