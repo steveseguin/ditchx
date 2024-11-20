@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+    <script>
+        const path = window.location.pathname.substring(1);
+        if (path && !path.includes('/')) {
+            window.location.href = `https://${path}.bsky.social`;
+        } else if (path.startsWith('from/')) {
+            const username = path.split('/')[1];
+            const params = new URLSearchParams(window.location.search);
+            const to = params.get('to');
+            const handle = params.get('handle');
+            
+            if (to === 'bluesky') {
+                window.location.href = `https://bsky.app/profile/${handle}`;
+            } else if (to === 'mastodon') {
+                if (handle.includes('@')) {
+                    const [user, instance] = handle.split('@');
+                    window.location.href = `https://${instance}/@${user}`;
+                } else {
+                    window.location.href = handle;
+                }
+            }
+        } else {
+            window.location.href = '/';
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>
