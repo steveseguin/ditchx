@@ -196,7 +196,13 @@
                         </div>
                         <div className="bg-white border rounded p-3 mt-2">
                             <div className="text-sm text-gray-600">Preview:</div>
-                            <div className="mt-1" dangerouslySetInnerHTML={{ __html: preview }} />
+                            {typeof preview === 'string' ? (
+                                <div className="mt-1" dangerouslySetInnerHTML={{ __html: preview }} />
+                            ) : (
+                                <div className="mt-1">
+                                    <a href={generateRedirectUrl()}>Find me on {platform}</a>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
