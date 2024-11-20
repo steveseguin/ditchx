@@ -331,6 +331,25 @@
                                             </a>
                                         </div>
                                     </div>
+                                    
+                                    <div className="mt-4">
+                                        <h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
+                                        <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                            <code className="flex-1 font-mono text-sm break-all text-gray-700">
+                                                {platform === 'bluesky' ? `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : generateRedirectUrl()}
+                                            </code>
+                                            <button
+                                                onClick={() => copyToClipboard(platform === 'bluesky' ? 
+                                                    `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
+                                                    generateRedirectUrl()
+                                                )}
+                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                                                title="Copy to clipboard"
+                                            >
+                                                <Copy size={18} className="text-gray-600" />
+                                            </button>
+                                        </div>
+                                    </div>
 
                                     <div className="space-y-8">
                                         <SnippetSection 
