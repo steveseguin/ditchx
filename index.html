@@ -379,25 +379,23 @@
                                 </div>
                             )}
 
-                        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
-                            <ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
-                                <li>Enter your X username and your new platform handle</li>
-                                <li>Copy your redirect link or HTML/Markdown snippet</li>
-                                <li>Share it in your X bio or posts</li>
-                                <li>Visitors will be redirected to your new profile</li>
-                            </ol>
-                            <div className="mt-6 bg-primary-50 rounded-lg p-4 text-primary-700">
-                                No login or database required - everything is encoded in the URL!
-                            </div>
+                        div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
+                        <ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
+                            <li>Enter your X username and your new platform handle</li>
+                            <li>Copy your redirect link or HTML/Markdown snippet</li>
+                            <li>Share it in your X bio or posts</li>
+                            <li>Visitors will be redirected to your new profile</li>
+                        </ol>
+                        <div className="mt-6 bg-primary-50 rounded-lg p-4 text-primary-700">
+                            No login or database required - everything is encoded in the URL!
                         </div>
                     </div>
                 </div>
-            );
-        };
+            </div>
+        );
+    };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<SimpleRedirector />);
-    </script>
-</body>
-</html>
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<SimpleRedirector />);
+</script>
