@@ -135,19 +135,24 @@
         
             const handleTargetChange = (e) => {
                 let value = e.target.value;
+                // Remove any existing .bsky.social suffix
+                value = value.replace('.bsky.social', '');
+                
                 if (platform === 'bluesky') {
-                    value = formatBlueskyHandle(value);
-                    if (value) setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
-                } else if (platform === 'mastodon') {
-                    if (value.includes('@')) {
-                        const [user, instance] = value.split('@');
-                        setDirectPlatformUrl(`https://${instance}/@${user}`);
-                    } else {
-                        setDirectPlatformUrl(value);
+                    // Only add .bsky.social if it's not already there
+                    if (!value.includes('.bsky.social')) {
+                        setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
                     }
+                    setTargetHandle(`${value}.bsky.social`);
+                } else if (platform === 'mastodon') {
+                    setDirectPlatformUrl(value.includes('@') 
+                        ? `https://${value.split('@')[1]}/@${value.split('@')[0]}`
+                        : value
+                    );
+                    setTargetHandle(value);
                 }
-                setTargetHandle(value);
             };
+            
             const generateRedirectUrl = () => {
                 const baseUrl = window.location.origin;
                 const params = new URLSearchParams();
