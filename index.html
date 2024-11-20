@@ -124,6 +124,15 @@
                 return `${baseUrl}/from/${xUsername}?${params.toString()}`;
             };
 
+            const formatUsername = (username) => {
+                // Remove @ from start or anywhere in string
+                return username.replace(/^@|@/g, '').trim();
+            };
+        
+            const handleUsernameChange = (e) => {
+                setXUsername(formatUsername(e.target.value));
+            };
+
             const generateDirectUrl = () => {
                 switch(platform) {
                     case 'bluesky':
@@ -176,7 +185,7 @@
                                         className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="username (without @)"
                                         value={xUsername}
-                                        onChange={(e) => setXUsername(e.target.value.replace('@', ''))}
+                                        onChange={handleUsernameChange}
                                     />
                                 </div>
 
