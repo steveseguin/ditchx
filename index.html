@@ -180,6 +180,28 @@
                 return `[Find me on ${platform}](${redirectUrl})`;
             };
 
+            const SnippetSection = ({ title, code, preview }) => (
+                <div>
+                    <h3 className="font-medium mb-2">{title}</h3>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
+                            <code className="flex-1 font-mono text-sm break-all">{code}</code>
+                            <button
+                                onClick={() => copyToClipboard(code)}
+                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                                title="Copy to clipboard"
+                            >
+                                <Copy size={16} className="text-gray-600" />
+                            </button>
+                        </div>
+                        <div className="bg-white border rounded p-3 mt-2">
+                            <div className="text-sm text-gray-600">Preview:</div>
+                            <div className="mt-1" dangerouslySetInnerHTML={{ __html: preview }} />
+                        </div>
+                    </div>
+                </div>
+            );
+
             return (
                 <div className="min-h-screen p-8">
                     <div className="max-w-2xl mx-auto space-y-8">
@@ -274,32 +296,17 @@
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <h3 className="font-medium mb-2">HTML Snippet</h3>
-                                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                                            <code className="flex-1 font-mono text-sm break-all">{generateHtmlSnippet()}</code>
-                                            <button
-                                                onClick={() => copyToClipboard(generateHtmlSnippet())}
-                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                                                title="Copy to clipboard"
-                                            >
-                                                <Copy size={16} className="text-gray-600" />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="font-medium mb-2">Markdown Snippet</h3>
-                                        <div className="flex items-center gap-2 bg-gray-50 p-3 rounded-lg">
-                                            <code className="flex-1 font-mono text-sm break-all">{generateMarkdownSnippet()}</code>
-                                            <button
-                                                onClick={() => copyToClipboard(generateMarkdownSnippet())}
-                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                                                title="Copy to clipboard"
-                                            >
-                                                <Copy size={16} className="text-gray-600" />
-                                            </button>
-                                        </div>
+                                    <div className="space-y-6">
+                                        <SnippetSection 
+                                            title="HTML Snippet"
+                                            code={generateHtmlSnippet()}
+                                            preview={generateHtmlSnippet()}
+                                        />
+                                        <SnippetSection 
+                                            title="Markdown Snippet"
+                                            code={generateMarkdownSnippet()}
+                                            preview={<a href={generateRedirectUrl()}>Find me on {platform}</a>}
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -321,6 +328,8 @@
                 </div>
             );
         };
+
+
 
         // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
