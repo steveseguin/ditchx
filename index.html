@@ -5,22 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DitchX - Social Platform Redirector</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230ea5e9;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%230369a1;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='24' height='24' rx='6' fill='url(%23grad)'/%3E%3Cpath d='M10 16 L16 22 L22 16 L19 16 L16 19 L13 16 Z' fill='white'/%3E%3Cpath d='M10 12 L16 18 L22 12' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
-    <!-- Primary Meta Tags -->
+    
+    <!-- Meta tags -->
     <meta name="title" content="DitchX - Migrate to Bluesky in One Click">
     <meta name="description" content="Ready for bluer skies? Easily migrate your followers from X to Bluesky with a simple redirect link. No login required.">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://ditchx.com/">
-    <meta property="og:title" content="DitchX - Migrate to Bluesky in One Click">
-    <meta property="og:description" content="Ready for bluer skies? Easily migrate your followers from X to Bluesky with a simple redirect link. No login required.">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://ditchx.com/">
-    <meta property="twitter:title" content="DitchX - Migrate to Bluesky in One Click">
-    <meta property="twitter:description" content="Ready for bluer skies? Easily migrate your followers from X to Bluesky with a simple redirect link. No login required.">
-    
+    <!-- Scripts -->
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -108,7 +98,6 @@
                 let value = e.target.value;
                 
                 if (platform === 'bluesky') {
-                    // Only strip .bsky.social if it's at the end of the string
                     value = value.replace(/\.bsky\.social$/, '');
                     setTargetHandle(`${value}.bsky.social`);
                     setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
@@ -143,13 +132,7 @@
                     }
                 }
             }, []);
-            const formatBlueskyHandle = (handle) => {
-                // If handle already contains a period, assume it's a full domain
-                if (handle.includes('.')) return handle;
-                // Otherwise, append .bsky.social
-                return `${handle}.bsky.social`;
-            };
-            
+
             const generateRedirectUrl = () => {
                 const baseUrl = window.location.origin;
                 const params = new URLSearchParams();
@@ -157,11 +140,11 @@
                 params.set('handle', targetHandle);
                 return `${baseUrl}/from/${xUsername}?${params.toString()}`;
             };
+
             const formatUsername = (username) => {
-                // Remove @ from start or anywhere in string
                 return username.replace(/^@|@/g, '').trim();
             };
-        
+
             const handleUsernameChange = (e) => {
                 const value = formatUsername(e.target.value);
                 setXUsername(value);
@@ -169,6 +152,7 @@
                     setDirectPlatformUrl(`https://twitter.com/${value}`);
                 }
             };
+
             const generateDirectUrl = () => {
                 switch(platform) {
                     case 'bluesky':
@@ -181,6 +165,7 @@
                         return '';
                 }
             };
+
             const copyToClipboard = async (text) => {
                 try {
                     await navigator.clipboard.writeText(text);
@@ -190,14 +175,17 @@
                     console.error('Failed to copy:', err);
                 }
             };
+
             const generateHtmlSnippet = () => {
                 const redirectUrl = generateRedirectUrl();
                 return `<a href="${redirectUrl}">Find me on ${platform}</a>`;
             };
+
             const generateMarkdownSnippet = () => {
                 const redirectUrl = generateRedirectUrl();
                 return `[Find me on ${platform}](${redirectUrl})`;
             };
+
             const SnippetSection = ({ title, code, preview }) => (
                 <div>
                     <h3 className="font-semibold text-gray-800 mb-3">{title}</h3>
@@ -217,11 +205,7 @@
                             {typeof preview === 'string' ? (
                                 <div className="mt-1" dangerouslySetInnerHTML={{ __html: preview }} />
                             ) : (
-                                <div className="mt-1">
-                                    <a href={generateRedirectUrl()} className="text-primary-600 hover:text-primary-700">
-                                        Find me on {platform}
-                                    </a>
-                                </div>
+                                <div className="mt-1">{preview}</div>
                             )}
                         </div>
                     </div>
@@ -244,7 +228,7 @@
                                 Pro tip: Simply type ditchx.com/<span className="font-mono font-medium">username</span> to jump straight to BlueSky
                             </div>
                         </div>
-        
+
                         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-8">
                             <div className="space-y-6">
                                 <div>
@@ -254,7 +238,7 @@
                                         className="w-full px-4 py-3 border border-gray-200 rounded-lg input-focus"
                                         placeholder="username (without @)"
                                         value={xUsername}
-                                        onChange={(e) => setXUsername(formatUsername(e.target.value))}
+                                        onChange={handleUsernameChange}
                                     />
                                     {xUsername && (
                                         <a href={`https://twitter.com/${xUsername}`} target="_blank" rel="noopener noreferrer" 
@@ -298,107 +282,4 @@
                                 </div>
                             </div>
 
-                        {targetHandle && (
-                            <div className="space-y-8 pt-6">
-                                <div>
-                                    <h3 className="font-semibold text-gray-800 mb-3">Direct Link</h3>
-                                    <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <code className="flex-1 font-mono text-sm break-all text-gray-700">
-                                            {platform === 'bluesky' ? 
-                                                `https://bsky.app/profile/${targetHandle}` : 
-                                                directPlatformUrl}
-                                        </code>
-                                        <a
-                                            href={platform === 'bluesky' ? 
-                                                `https://bsky.app/profile/${targetHandle}` : 
-                                                directPlatformUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
-                                            title="Open link"
-                                        >
-                                            <ExternalLink size={18} className="text-gray-600" />
-                                        </a>
-                                    </div>
-                                </div>
-        
-                                <div>
-                                    <h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
-                                    <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                        <code className="flex-1 font-mono text-sm break-all text-gray-700">
-                                            {platform === 'bluesky' ? 
-                                                `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
-                                                generateRedirectUrl()}
-                                        </code>
-                                        <button
-                                            onClick={() => copyToClipboard(platform === 'bluesky' ? 
-                                                `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
-                                                generateRedirectUrl()
-                                            )}
-                                            className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
-                                            title="Copy to clipboard"
-                                        >
-                                            <Copy size={18} className="text-gray-600" />
-                                        </button>
-                                    </div>
-                                </div>
-        
-                                {xUsername && (
-                                    <>
-                                        <div className="border-t pt-6">
-                                            <h3 className="font-semibold text-gray-800 mb-3">Redirect Link</h3>
-                                            <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                                <code className="flex-1 font-mono text-sm break-all text-gray-700">
-                                                    {generateRedirectUrl()}
-                                                </code>
-                                                <button
-                                                    onClick={() => copyToClipboard(generateRedirectUrl())}
-                                                    className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
-                                                    title="Copy to clipboard"
-                                                >
-                                                    <Copy size={18} className="text-gray-600" />
-                                                </button>
-                                            </div>
-                                        </div>
-        
-                                        <div className="space-y-8">
-                                            <SnippetSection 
-                                                title="HTML Snippet"
-                                                code={generateHtmlSnippet()}
-                                                preview={generateHtmlSnippet()}
-                                            />
-                                            <SnippetSection 
-                                                title="Markdown Snippet"
-                                                code={generateMarkdownSnippet()}
-                                                preview={<a href={generateRedirectUrl()} className="text-primary-600 hover:text-primary-700">
-                                                    Find me on {platform}
-                                                </a>}
-                                            />
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-
-                     <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
-                        <ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
-                            <li>Enter your X username and your new platform handle</li>
-                            <li>Copy your redirect link or HTML/Markdown snippet</li>
-                            <li>Share it in your X bio or posts</li>
-                            <li>Visitors will be redirected to your new profile</li>
-                        </ol>
-                        <div className="mt-6 bg-primary-50 rounded-lg p-4 text-primary-700">
-                            No login or database required - everything is encoded in the URL!
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<SimpleRedirector />);
-</script>
-</body>
-</html>
+                            {targetHandle && (
