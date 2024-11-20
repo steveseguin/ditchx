@@ -87,18 +87,24 @@
             </svg>
         );
 
-        const SimpleRedirector = () => {
+            const SimpleRedirector = () => {
             const [platform, setPlatform] = React.useState('bluesky');
             const [xUsername, setXUsername] = React.useState('');
             const [targetHandle, setTargetHandle] = React.useState('');
             const [copied, setCopied] = React.useState(false);
             const [directPlatformUrl, setDirectPlatformUrl] = React.useState('');
-
+    
             const handleTargetChange = (e) => {
                 let value = e.target.value;
                 
                 if (platform === 'bluesky') {
-                    value = value.replace(/\.bsky\.social$/, '');
+                    // Remove any existing .bsky.social suffixes
+                    value = value.replace(/\.bsky\.social/g, '');
+                    // Clean any duplicate dots
+                    value = value.replace(/\.+/g, '.');
+                    // Remove dots at the start or end
+                    value = value.replace(/^\.+|\.+$/g, '');
+                    
                     setTargetHandle(`${value}.bsky.social`);
                     setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
                 } else if (platform === 'mastodon') {
