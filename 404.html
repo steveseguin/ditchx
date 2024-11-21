@@ -62,7 +62,7 @@
                             return buildDestinationUrl(handle);
                         }
                         // Otherwise, append .bsky.social
-                        return buildDestinationUrl(`bsky.app/profile/${handle}`);
+                        return buildDestinationUrl(`bsky.app/profile/${handle}.bsky.social`);
                     } else if (type === 'mastodon') {
                         if (handle.includes('@')) {
                             // Handle @user@instance.com format
