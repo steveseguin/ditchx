@@ -1,33 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Redirecting...</title>
-    <script>
-        const path = window.location.pathname.substring(1);
-        if (path && !path.includes('/')) {
-            window.location.href = `https://${path}.bsky.social`;
-        } else if (path.startsWith('from/')) {
-            const username = path.split('/')[1];
-            const params = new URLSearchParams(window.location.search);
-            const to = params.get('to');
-            const handle = params.get('handle');
-            
-            if (to === 'bluesky') {
-                window.location.href = `https://bsky.app/profile/${handle}`;
-            } else if (to === 'mastodon') {
-                if (handle.includes('@')) {
-                    const [user, instance] = handle.split('@');
-                    window.location.href = `https://${instance}/@${user}`;
-                } else {
-                    window.location.href = handle;
-                }
-            }
-        } else {
-            window.location.href = '/';
+    <title>Social Media Redirect</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f0f2f5;
         }
+        .loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            text-align: center;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        async function redirect() {
+            try {
+                const path = window.location.pathname.slice(1);
+                const referrer = document.referrer || 'direct';
+                const statusElement = document.getElementById('status');
+                
+                // Helper function to build destination URL with referrer
+                function buildDestinationUrl(baseUrl) {
+                    const url = new URL(baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`);
+                    url.searchParams.append('ref', encodeURIComponent(referrer));
+                    return url.toString();
+                }
+                
+                // If path is too short, default to Bluesky
+                if (path.length < 2) {
+                    window.location.href = buildDestinationUrl(`${path}.bsky.social`);
+                    return;
+                }
+                
+                // Handle the from/ route for explicit redirections
+                if (path.startsWith('from/')) {
+                    const [, username] = path.split('/');
+                    const params = new URLSearchParams(window.location.search);
+                    const to = params.get('to');
+                    const handle = params.get('handle');
+                    
+                    if (!handle) {
+                        statusElement.textContent = 'Error: No handle provided';
+                        return;
+                    }
+
+                    if (to === 'bluesky') {
+                        window.location.href = `https://${handle}.bsky.social`;
+                        return;
+                    }
+                    
+                    if (to === 'mastodon') {
+                        // Handle Mastodon format: either @user@instance.com or full URL
+                        if (handle.includes('@')) {
+                            // If it's a handle like @user@instance.com
+                            const cleanHandle = handle.startsWith('@') ? handle.slice(1) : handle;
+                            const [user, instance] = cleanHandle.split('@');
+                            window.location.href = `https://${instance}/@${user}`;
+                        } else if (handle.includes('://')) {
+                            // If it's already a full URL
+                            window.location.href = handle;
+                        } else {
+                            // If it's just a domain
+                            window.location.href = `https://${handle}`;
+                        }
+                        return;
+                    }
+                }
+                
+                // Try to fetch mappings from JSON file
+                try {
+                    const firstChar = path.charAt(0).toLowerCase();
+                    const secondChar = path.charAt(1).toLowerCase();
+                    const response = await fetch(`/data/${firstChar}/${secondChar}.json`);
+                    
+                    if (response.ok) {
+                        const mappings = await response.json();
+                        if (mappings[path]) {
+                            const destination = mappings[path];
+                            if (destination.includes('@')) {
+                                // It's a Mastodon handle
+                                const [user, instance] = destination.split('@');
+                                window.location.href = `https://${instance}/@${user}`;
+                            } else if (destination.startsWith('http')) {
+                                // It's a full URL
+                                window.location.href = buildDestinationUrl(destination);
+                            } else {
+                                // Assume Bluesky
+                                window.location.href = buildDestinationUrl(`${destination}.bsky.social`);
+                            }
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching mappings:', error);
+                }
+                
+                // Default fallback - direct to Bluesky
+                window.location.href = buildDestinationUrl(`${path}.bsky.social`);
+                
+            } catch (error) {
+                console.error('Redirect error:', error);
+                document.getElementById('status').textContent = 'Error redirecting. Please try again.';
+            }
+        }
+        
+        // Start redirect when page loads
+        window.onload = redirect;
     </script>
 </head>
 <body>
-    <p>Redirecting...</p>
+    <div class="loader">
+        <div class="spinner"></div>
+        <p id="status">Redirecting...</p>
+    </div>
 </body>
 </html>
