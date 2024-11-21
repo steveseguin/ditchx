@@ -93,85 +93,66 @@
             const [targetHandle, setTargetHandle] = React.useState('');
             const [copied, setCopied] = React.useState(false);
             const [directPlatformUrl, setDirectPlatformUrl] = React.useState('');
-    
+        
             const handleTargetChange = (e) => {
                 let value = e.target.value;
                 
                 if (platform === 'bluesky') {
-                    // Remove any existing .bsky.social suffixes
-                    value = value.replace(/\.bsky\.social/g, '');
-                    // Clean any duplicate dots
-                    value = value.replace(/\.+/g, '.');
-                    // Remove dots at the start or end
-                    value = value.replace(/^\.+|\.+$/g, '');
+                    // Remove any existing .bsky.social suffixes and clean up
+                    value = value.replace(/\.bsky\.social/g, '')
+                                .replace(/\.+/g, '.')
+                                .replace(/^\.+|\.+$/g, '');
                     
-                    setTargetHandle(`${value}.bsky.social`);
+                    setTargetHandle(value);
                     setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
                 } else if (platform === 'mastodon') {
                     setTargetHandle(value);
-                    setDirectPlatformUrl(value.includes('@') 
-                        ? `https://${value.split('@')[1]}/@${value.split('@')[0]}`
-                        : value
-                    );
-                }
-            };
-
-            React.useEffect(() => {
-                const path = window.location.pathname.substring(1);
-                if (path && !path.includes('/')) {
-                    window.location.href = `https://${path}.bsky.social`;
-                } else if (path.startsWith('from/')) {
-                    const username = path.split('/')[1];
-                    const params = new URLSearchParams(window.location.search);
-                    const to = params.get('to');
-                    const handle = params.get('handle');
-                    
-                    if (to === 'bluesky') {
-                        window.location.href = `https://bsky.app/profile/${handle}`;
-                    } else if (to === 'mastodon') {
-                        if (handle.includes('@')) {
-                            const [user, instance] = handle.split('@');
-                            window.location.href = `https://${instance}/@${user}`;
-                        } else {
-                            window.location.href = handle;
-                        }
+                    if (value.includes('@')) {
+                        const [user, instance] = value.split('@');
+                        setDirectPlatformUrl(`https://${instance}/@${user}`);
+                    } else {
+                        setDirectPlatformUrl(value);
                     }
                 }
-            }, []);
-
+            };
+        
             const generateRedirectUrl = () => {
                 const baseUrl = window.location.origin;
+                
+                // For Bluesky, just use the simple format
+                if (platform === 'bluesky') {
+                    return `${baseUrl}/${targetHandle}`;
+                }
+                
+                // For Mastodon, use the explicit routing format
                 const params = new URLSearchParams();
                 params.set('to', platform);
                 params.set('handle', targetHandle);
                 return `${baseUrl}/from/${xUsername}?${params.toString()}`;
             };
-
+        
             const formatUsername = (username) => {
                 return username.replace(/^@|@/g, '').trim();
             };
-
+        
             const handleUsernameChange = (e) => {
                 const value = formatUsername(e.target.value);
                 setXUsername(value);
-                if (value) {
-                    setDirectPlatformUrl(`https://twitter.com/${value}`);
-                }
             };
-
-            const generateDirectUrl = () => {
-                switch(platform) {
-                    case 'bluesky':
-                        return `https://bsky.app/profile/${targetHandle}`;
-                    case 'mastodon':
-                        return targetHandle.includes('@') 
-                            ? `https://${targetHandle.split('@')[1]}/@${targetHandle.split('@')[0]}`
-                            : targetHandle;
-                    default:
-                        return '';
+        
+        const generateDirectUrl = () => {
+            if (platform === 'bluesky') {
+                return `https://bsky.app/profile/${targetHandle}.bsky.social`;
+            } else if (platform === 'mastodon') {
+                if (targetHandle.includes('@')) {
+                    const [user, instance] = targetHandle.split('@');
+                    return `https://${instance}/@${user}`;
                 }
-            };
-
+                return targetHandle.startsWith('http') ? targetHandle : `https://${targetHandle}`;
+            }
+            return '';
+        };
+        
             const copyToClipboard = async (text) => {
                 try {
                     await navigator.clipboard.writeText(text);
@@ -181,17 +162,17 @@
                     console.error('Failed to copy:', err);
                 }
             };
-
-            const generateHtmlSnippet = () => {
-                const redirectUrl = generateRedirectUrl();
-                return `<a href="${redirectUrl}">Find me on ${platform}</a>`;
-            };
-
+        
             const generateMarkdownSnippet = () => {
                 const redirectUrl = generateRedirectUrl();
                 return `[Find me on ${platform}](${redirectUrl})`;
             };
 
+            const generateHtmlSnippet = () => {
+                const redirectUrl = generateRedirectUrl();
+                return `<a href="${redirectUrl}">Find me on ${platform}</a>`;
+            };
+            
             const SnippetSection = ({ title, code, preview }) => (
                 <div>
                     <h3 className="font-semibold text-gray-800 mb-3">{title}</h3>
