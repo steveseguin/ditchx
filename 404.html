@@ -54,7 +54,7 @@
                     
                     if (type === 'bluesky') {
                         // If handle already contains .bsky.social, use it as is
-                        if (handle.includes('.bsky.social')) {
+                        if (handle.includes('.bsky.social')) { 
                             return buildDestinationUrl(handle);
                         }
                         // If handle contains any domain, assume it's complete
@@ -62,7 +62,7 @@
                             return buildDestinationUrl(handle);
                         }
                         // Otherwise, append .bsky.social
-                        return buildDestinationUrl(`${handle}.bsky.social`);
+                        return buildDestinationUrl(`bsky.app/profile/${handle}`);
                     } else if (type === 'mastodon') {
                         if (handle.includes('@')) {
                             // Handle @user@instance.com format
