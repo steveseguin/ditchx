@@ -39,22 +39,52 @@
                 const referrer = document.referrer || 'direct';
                 const statusElement = document.getElementById('status');
                 
-                // Helper function to build destination URL with referrer
                 function buildDestinationUrl(baseUrl) {
-                    const url = new URL(baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`);
+                    // If it's already a full URL, don't modify it
+                    if (baseUrl.startsWith('http')) return baseUrl;
+                    
+                    const url = new URL(`https://${baseUrl}`);
                     url.searchParams.append('ref', encodeURIComponent(referrer));
                     return url.toString();
                 }
                 
+                function processHandle(handle, type) {
+                    // Remove any protocol if present
+                    handle = handle.replace(/^https?:\/\//, '');
+                    
+                    if (type === 'bluesky') {
+                        // If handle already contains .bsky.social, use it as is
+                        if (handle.includes('.bsky.social')) {
+                            return buildDestinationUrl(handle);
+                        }
+                        // If handle contains any domain, assume it's complete
+                        if (handle.includes('.')) {
+                            return buildDestinationUrl(handle);
+                        }
+                        // Otherwise, append .bsky.social
+                        return buildDestinationUrl(`${handle}.bsky.social`);
+                    } else if (type === 'mastodon') {
+                        if (handle.includes('@')) {
+                            // Handle @user@instance.com format
+                            const cleanHandle = handle.startsWith('@') ? handle.slice(1) : handle;
+                            const [user, instance] = cleanHandle.split('@');
+                            return buildDestinationUrl(`${instance}/@${user}`);
+                        } else if (handle.includes('.')) {
+                            // If it contains a period, assume it's a domain
+                            return buildDestinationUrl(handle);
+                        }
+                    }
+                    return buildDestinationUrl(handle);
+                }
+                
                 // If path is too short, default to Bluesky
                 if (path.length < 2) {
-                    window.location.href = buildDestinationUrl(`${path}.bsky.social`);
+                    window.location.href = processHandle(path, 'bluesky');
                     return;
                 }
                 
                 // Handle the from/ route for explicit redirections
                 if (path.startsWith('from/')) {
-                    const [, username] = path.split('/');
                     const params = new URLSearchParams(window.location.search);
                     const to = params.get('to');
                     const handle = params.get('handle');
@@ -64,25 +94,8 @@
                         return;
                     }
 
-                    if (to === 'bluesky') {
-                        window.location.href = `https://${handle}.bsky.social`;
-                        return;
-                    }
-                    
-                    if (to === 'mastodon') {
-                        // Handle Mastodon format: either @user@instance.com or full URL
-                        if (handle.includes('@')) {
-                            // If it's a handle like @user@instance.com
-                            const cleanHandle = handle.startsWith('@') ? handle.slice(1) : handle;
-                            const [user, instance] = cleanHandle.split('@');
-                            window.location.href = `https://${instance}/@${user}`;
-                        } else if (handle.includes('://')) {
-                            // If it's already a full URL
-                            window.location.href = handle;
-                        } else {
-                            // If it's just a domain
-                            window.location.href = `https://${handle}`;
-                        }
+                    if (to === 'bluesky' || to === 'mastodon') {
+                        window.location.href = processHandle(handle, to);
                         return;
                     }
                 }
@@ -96,18 +109,8 @@
                     if (response.ok) {
                         const mappings = await response.json();
                         if (mappings[path]) {
-                            const destination = mappings[path];
-                            if (destination.includes('@')) {
-                                // It's a Mastodon handle
-                                const [user, instance] = destination.split('@');
-                                window.location.href = `https://${instance}/@${user}`;
-                            } else if (destination.startsWith('http')) {
-                                // It's a full URL
-                                window.location.href = buildDestinationUrl(destination);
-                            } else {
-                                // Assume Bluesky
-                                window.location.href = buildDestinationUrl(`${destination}.bsky.social`);
-                            }
+                            window.location.href = processHandle(mappings[path], 
+                                mappings[path].includes('@') ? 'mastodon' : 'bluesky');
                             return;
                         }
                     }
@@ -116,7 +119,7 @@
                 }
                 
                 // Default fallback - direct to Bluesky
-                window.location.href = buildDestinationUrl(`${path}.bsky.social`);
+                window.location.href = processHandle(path, 'bluesky');
                 
             } catch (error) {
                 console.error('Redirect error:', error);
