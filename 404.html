@@ -77,27 +77,23 @@
                     return buildDestinationUrl(handle);
                 }
                 
-                // If path is too short, default to Bluesky
-                if (path.length < 2) {
-                    window.location.href = processHandle(path, 'bluesky');
-                    return;
-                }
+                // Check for URL parameters first
+                const params = new URLSearchParams(window.location.search);
+                const to = params.get('to');
+                const handle = params.get('handle');
                 
-                // Handle the from/ route for explicit redirections
-                if (path.startsWith('from/')) {
-                    const params = new URLSearchParams(window.location.search);
-                    const to = params.get('to');
-                    const handle = params.get('handle');
-                    
-                    if (!handle) {
-                        statusElement.textContent = 'Error: No handle provided';
-                        return;
-                    }
-
+                if (to && handle) {
+                    // Direct parameter-based redirect
                     if (to === 'bluesky' || to === 'mastodon') {
                         window.location.href = processHandle(handle, to);
                         return;
                     }
+                }
+                
+                // If path is too short, default to Bluesky
+                if (path.length < 2) {
+                    window.location.href = processHandle(path, 'bluesky');
+                    return;
                 }
                 
                 // Try to fetch mapping from API
@@ -130,8 +126,7 @@
                 document.getElementById('status').textContent = 'Error redirecting. Please try again.';
             }
         }
-        
-        // Start redirect when page loads
+                
         window.onload = redirect;
     </script>
 </head>
