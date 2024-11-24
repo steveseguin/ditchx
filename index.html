@@ -97,8 +97,10 @@
                 
                 if (platform === 'bluesky') {
                     if (value.includes('.')) {
+                        // For custom domains, use as is
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
                     } else {
+                        // For regular handles, always append .bsky.social
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
                     }
                 } else if (platform === 'mastodon') {
@@ -142,8 +144,10 @@
             const generateDirectUrl = () => {
                 if (platform === 'bluesky') {
                     if (targetHandle.includes('.')) {
+                        // For custom domains, use as is
                         return `https://bsky.app/profile/${targetHandle}`;
                     }
+                    // For regular handles, always append .bsky.social
                     return `https://bsky.app/profile/${targetHandle}.bsky.social`;
                 } else if (platform === 'mastodon') {
                     if (targetHandle.includes('@')) {
