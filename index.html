@@ -205,11 +205,11 @@
 						setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
 					}
 					
-					// Reset verification if handles don't match
-					if (xUsername && value !== xUsername) {
-						setIsVerified(false);
+					// Only set as verified if there's an X username and it matches
+					if (xUsername && value === xUsername) {
+						setIsVerified(true);
 					} else {
-						setIsVerified(true); // Auto-verify if handles match
+						setIsVerified(false);
 					}
 				}
 			};
