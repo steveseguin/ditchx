@@ -146,6 +146,104 @@
                     window.history.replaceState({}, '', window.location.pathname);
                 }
             }, []);
+			
+			// Cache for mapping data and request timestamps
+			const mappingCache = useRef({
+				data: {},
+				timestamps: {},
+				pendingRequests: {},
+				lastRequestTime: {},
+				timeoutIds: {}, // Store timeout IDs to clean them up
+				CACHE_DURATION: 5000, // 5 seconds
+			}).current;
+
+			// Cleanup timeouts on unmount
+			useEffect(() => {
+				return () => {
+					Object.values(mappingCache.timeoutIds).forEach(timeoutId => {
+						clearTimeout(timeoutId);
+					});
+				};
+			}, []);
+			
+			const makeRequest = async (username) => {
+				try {
+					const response = await fetch(`https://api.ditchx.com/mapping/${username}`, {
+						credentials: 'omit'
+					});
+					
+					if (response.ok) {
+						const data = await response.json();
+						mappingCache.data[username] = data.mapping;
+						return data;
+					} else if (response.status === 404) {
+						mappingCache.data[username] = null;
+						return { mapping: null };
+					}
+					throw new Error(`HTTP ${response.status}`);
+				} finally {
+					delete mappingCache.pendingRequests[username];
+				}
+			};
+			
+			// Check existing mapping with throttling and delayed checks
+			useEffect(() => {
+				const checkExistingMapping = async () => {
+					if (xUsername && targetHandle) {
+						const now = Date.now();
+
+						// Clear any existing timeout for this username
+						if (mappingCache.timeoutIds[xUsername]) {
+							clearTimeout(mappingCache.timeoutIds[xUsername]);
+							delete mappingCache.timeoutIds[xUsername];
+						}
+
+						// Check if we're still in throttle period
+						const lastRequest = mappingCache.lastRequestTime[xUsername];
+						if (lastRequest && (now - lastRequest < mappingCache.CACHE_DURATION)) {
+							// Still in throttle period - use cached data if available
+							const cachedMapping = mappingCache.data[xUsername];
+							if (cachedMapping !== undefined) {
+								if (cachedMapping === targetHandle) {
+									setIsVerified(true);
+								}
+								return;
+							}
+
+							// Set up a check for when the throttle period ends
+							const timeRemaining = mappingCache.CACHE_DURATION - (now - lastRequest);
+							mappingCache.pendingRequests[xUsername] = true; // Mark that we want to make a request
+							
+							mappingCache.timeoutIds[xUsername] = setTimeout(async () => {
+								if (mappingCache.pendingRequests[xUsername]) {
+									// Make the request after throttle period
+									mappingCache.lastRequestTime[xUsername] = Date.now();
+									const data = await makeRequest(xUsername);
+									if (data.mapping === targetHandle) {
+										setIsVerified(true);
+									}
+								}
+							}, timeRemaining);
+							
+							return;
+						}
+
+						// If we're here, we're not in the throttle period
+						mappingCache.lastRequestTime[xUsername] = now;
+						
+						try {
+							const data = await makeRequest(xUsername);
+							if (data.mapping === targetHandle) {
+								setIsVerified(true);
+							}
+						} catch (error) {
+							console.error('Error checking mapping:', error);
+						}
+					}
+				};
+				
+				checkExistingMapping();
+			}, [xUsername, targetHandle]);
 
 			const handleVerify = async () => {
                 if (!targetHandle) {
