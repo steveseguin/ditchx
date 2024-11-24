@@ -211,7 +211,40 @@
                 const redirectUrl = generateRedirectUrl();
                 return `<a href="${redirectUrl}">Find me on ${platform}</a>`;
             };
-            
+            const ShortLinkSection = () => {
+                const needsVerification = xUsername && targetHandle && xUsername !== targetHandle;
+                const shortLink = platform === 'bluesky' ? 
+                    `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
+                    generateRedirectUrl();
+        
+                if (needsVerification && !mappingVerified) {
+                    return (
+                        <div>
+                            <h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <code className="flex-1 font-mono text-sm break-all text-gray-400">{shortLink}</code>
+                                    <button
+                                        disabled
+                                        className="p-2 text-gray-400 cursor-not-allowed"
+                                        title="Verification required"
+                                    >
+                                        <Copy size={18} />
+                                    </button>
+                                </div>
+                                <div className="text-sm text-primary-600">
+                                    <a href="https://github.com/yourusername/yourrepo/issues/new" 
+                                       target="_blank" 
+                                       rel="noopener noreferrer"
+                                       className="hover:underline">
+                                        Click here to verify this mapping
+                                    </a>
+                                    {' '}before using this short link.
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
             const SnippetSection = ({ title, code, preview }) => (
                 <div>
                     <h3 className="font-semibold text-gray-800 mb-3">{title}</h3>
@@ -296,27 +329,8 @@
 
                             {targetHandle && (
                                 <div className="space-y-8 pt-6">
-                                    <div>
-                                        <h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
-                                        <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                            <code className="flex-1 font-mono text-sm break-all text-gray-700">
-                                                {platform === 'bluesky' ? 
-                                                    `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
-                                                    generateRedirectUrl()}
-                                            </code>
-                                            <button
-                                                onClick={() => copyToClipboard(platform === 'bluesky' ? 
-                                                    `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
-                                                    generateRedirectUrl()
-                                                )}
-                                                className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
-                                                title="Copy to clipboard"
-                                            >
-                                                <Copy size={18} className="text-gray-600" />
-                                            </button>
-                                        </div>
-                                    </div>
-
+                                    <ShortLinkSection />
+                                    
                                     {xUsername && (
                                         <>
                                             <div className="border-t pt-6">
