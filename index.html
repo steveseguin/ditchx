@@ -85,6 +85,7 @@
                 <polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/>
             </svg>
         );
+		
 		const SimpleRedirector = () => {
 			const { useState, useEffect, useRef } = React;
 			const [platform] = useState('bluesky');
@@ -101,14 +102,50 @@
 				timestamps: {},
 				pendingRequests: {},
 				lastRequestTime: {},
+				timeoutIds: {}, // Store timeout IDs to clean them up
 				CACHE_DURATION: 5000, // 5 seconds
 			}).current;
 
-			// Check existing mapping with throttling
+			// Cleanup timeouts on unmount
+			useEffect(() => {
+				return () => {
+					Object.values(mappingCache.timeoutIds).forEach(timeoutId => {
+						clearTimeout(timeoutId);
+					});
+				};
+			}, []);
+
+			const makeRequest = async (username) => {
+				try {
+					const response = await fetch(`https://api.ditchx.com/mapping/${username}`, {
+						credentials: 'omit'
+					});
+					
+					if (response.ok) {
+						const data = await response.json();
+						mappingCache.data[username] = data.mapping;
+						return data;
+					} else if (response.status === 404) {
+						mappingCache.data[username] = null;
+						return { mapping: null };
+					}
+					throw new Error(`HTTP ${response.status}`);
+				} finally {
+					delete mappingCache.pendingRequests[username];
+				}
+			};
+
+			// Check existing mapping with throttling and delayed checks
 			useEffect(() => {
 				const checkExistingMapping = async () => {
 					if (xUsername && targetHandle) {
 						const now = Date.now();
+
+						// Clear any existing timeout for this username
+						if (mappingCache.timeoutIds[xUsername]) {
+							clearTimeout(mappingCache.timeoutIds[xUsername]);
+							delete mappingCache.timeoutIds[xUsername];
+						}
 
 						// Check if we're still in throttle period
 						const lastRequest = mappingCache.lastRequestTime[xUsername];
@@ -121,50 +158,30 @@
 								}
 								return;
 							}
-							return; // Still in throttle period with no cache - do nothing
-						}
 
-						// If there's already a pending request, wait for it
-						if (mappingCache.pendingRequests[xUsername]) {
-							try {
-								const data = await mappingCache.pendingRequests[xUsername];
-								if (data.mapping === targetHandle) {
-									setIsVerified(true);
+							// Set up a check for when the throttle period ends
+							const timeRemaining = mappingCache.CACHE_DURATION - (now - lastRequest);
+							mappingCache.pendingRequests[xUsername] = true; // Mark that we want to make a request
+							
+							mappingCache.timeoutIds[xUsername] = setTimeout(async () => {
+								if (mappingCache.pendingRequests[xUsername]) {
+									// Make the request after throttle period
+									mappingCache.lastRequestTime[xUsername] = Date.now();
+									const data = await makeRequest(xUsername);
+									if (data.mapping === targetHandle) {
+										setIsVerified(true);
+									}
 								}
-							} catch (error) {
-								console.error('Error from pending request:', error);
-							}
+							}, timeRemaining);
+							
 							return;
 						}
 
-						// Update last request time before making new request
+						// If we're here, we're not in the throttle period
 						mappingCache.lastRequestTime[xUsername] = now;
-
-						// Create a new request and store its promise
-						const requestPromise = (async () => {
-							try {
-								const response = await fetch(`https://api.ditchx.com/mapping/${xUsername}`, {
-									credentials: 'omit'
-								});
-								
-								if (response.ok) {
-									const data = await response.json();
-									mappingCache.data[xUsername] = data.mapping;
-									return data;
-								} else if (response.status === 404) {
-									mappingCache.data[xUsername] = null;
-									return { mapping: null };
-								}
-								throw new Error(`HTTP ${response.status}`);
-							} finally {
-								delete mappingCache.pendingRequests[xUsername];
-							}
-						})();
-
-						mappingCache.pendingRequests[xUsername] = requestPromise;
-
+						
 						try {
-							const data = await requestPromise;
+							const data = await makeRequest(xUsername);
 							if (data.mapping === targetHandle) {
 								setIsVerified(true);
 							}
@@ -176,6 +193,7 @@
 				
 				checkExistingMapping();
 			}, [xUsername, targetHandle]);
+
 			
 			// Rest of your component code remains the same...
 			const handleVerify = async () => {
