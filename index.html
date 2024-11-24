@@ -108,18 +108,37 @@
 			const [verificationStatus, setVerificationStatus] = useState('');
 			const [copied, setCopied] = useState(false);
 			const [directPlatformUrl, setDirectPlatformUrl] = useState('');
+			const [error, setError] = useState('');
 
 			// Check URL parameters on mount
 			useEffect(() => {
 				const params = new URLSearchParams(window.location.search);
 				const returnedUsername = params.get('username');
-				const success = params.get('success');
+				const returnedHandle = params.get('handle');
+				const success = params.get('success') === 'true';
+				const error = params.get('error');
 
-				if (success === 'true' && returnedUsername) {
-					// If we have a username from auth, always use it
+				if (returnedUsername && returnedHandle) {
+					// If user had entered a different X username before auth
+					if (xUsername && xUsername !== returnedUsername) {
+						setError(`The X account you signed into (${returnedUsername}) doesn't match the username you entered (${xUsername}). Using the authenticated account.`);
+					}
+
+					// Always use the returned values from authentication
 					setXUsername(returnedUsername);
-					setIsVerified(true);
+					setTargetHandle(returnedHandle);
 					
+					if (success) {
+						setIsVerified(true);
+						setVerificationStatus('Account successfully linked with X');
+					} else if (error === 'persistence') {
+						setError('Account verified but there was an error saving the mapping. Please try again.');
+						setIsVerified(false);
+					} else if (error) {
+						setError(`There was an error: ${error}. Please try again.`);
+						setIsVerified(false);
+					}
+
 					// Clear the URL parameters without refreshing
 					window.history.replaceState({}, '', window.location.pathname);
 				}
@@ -366,7 +385,12 @@
 							</p>
 						</div>
                         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-8">
-                            <div className="space-y-6">
+							{error && (
+								<div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+									{error}
+								</div>
+							)}
+							<div className="space-y-6">
 								<div>
 									<label className="block text-sm font-semibold text-gray-700 mb-2">Your X Username</label>
 									<input
@@ -391,25 +415,25 @@
 									)}
 								</div>
 
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        {platform === 'bluesky' ? 'Bluesky Handle' : 'Mastodon Handle'}
-                                    </label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg input-focus"
-                                        placeholder={platform === 'bluesky' ? 'handle.bsky.social' : 'username@instance.social'}
-                                        value={targetHandle}
-                                        onChange={handleTargetChange}
-                                    />
-                                    {targetHandle && (
-                                        <a href={generateDirectUrl()} target="_blank" rel="noopener noreferrer" 
-                                           className="text-sm text-primary-600 hover:text-primary-700 mt-2 inline-block">
-                                            {generateDirectUrl()}
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
+								<div>
+									<label className="block text-sm font-semibold text-gray-700 mb-2">Bluesky Handle</label>
+									<input
+										type="text"
+										className="w-full px-4 py-3 border border-gray-200 rounded-lg input-focus"
+										placeholder="handle.bsky.social"
+										value={targetHandle}
+										onChange={handleTargetChange}
+									/>
+									{targetHandle && (
+										<a href={generateDirectUrl()} 
+										   target="_blank" 
+										   rel="noopener noreferrer" 
+										   className="text-sm text-primary-600 hover:text-primary-700 mt-2 inline-block">
+											{generateDirectUrl()}
+										</a>
+									)}
+								</div>
+							</div>
 
                             {targetHandle && (
                                 <div className="space-y-8 pt-6">
