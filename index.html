@@ -95,15 +95,16 @@
 			const [copied, setCopied] = useState(false);
 			const [directPlatformUrl, setDirectPlatformUrl] = useState('');
 			
-			// Cache for mapping data and in-flight requests
+			// Enhanced cache with last missed request tracking
 			const mappingCache = useRef({
 				data: {},
 				timestamps: {},
 				pendingRequests: {},
+				lastMissedRequests: {}, // Track requests that came during cache period
 				CACHE_DURATION: 5000, // 5 seconds
 			}).current;
 
-			// Check existing mapping with improved caching
+			// Check existing mapping with improved caching and last request handling
 			useEffect(() => {
 				const checkExistingMapping = async () => {
 					if (xUsername && targetHandle) {
@@ -112,14 +113,35 @@
 						const cachedMapping = mappingCache.data[xUsername];
 						const cachedTimestamp = mappingCache.timestamps[xUsername];
 						
-						if (cachedMapping !== undefined && cachedTimestamp && (now - cachedTimestamp < mappingCache.CACHE_DURATION)) {
-							if (cachedMapping === targetHandle) {
-								setIsVerified(true);
+						if (cachedMapping !== undefined && cachedTimestamp) {
+							const cacheAge = now - cachedTimestamp;
+							if (cacheAge < mappingCache.CACHE_DURATION) {
+								// Cache is still valid
+								if (cachedMapping === targetHandle) {
+									setIsVerified(true);
+								}
+								// Store this as the last request that came during cache period
+								mappingCache.lastMissedRequests[xUsername] = {
+									timestamp: now,
+									targetHandle
+								};
+								return;
+							} else {
+								// Cache expired - check if we have a missed request to process
+								const missedRequest = mappingCache.lastMissedRequests[xUsername];
+								if (missedRequest && missedRequest.timestamp > cachedTimestamp) {
+									// Clear the missed request as we're about to process it
+									delete mappingCache.lastMissedRequests[xUsername];
+									// Continue with the request...
+								} else {
+									// No missed request - clear cache and continue
+									delete mappingCache.data[xUsername];
+									delete mappingCache.timestamps[xUsername];
+								}
 							}
-							return;
 						}
 
-						// If there's already a pending request for this username, wait for it
+						// Handle pending requests
 						if (mappingCache.pendingRequests[xUsername]) {
 							try {
 								const data = await mappingCache.pendingRequests[xUsername];
@@ -144,21 +166,21 @@
 									const data = await response.json();
 									mappingCache.data[xUsername] = data.mapping;
 									mappingCache.timestamps[xUsername] = now;
+									// Clear any missed requests as we just got fresh data
+									delete mappingCache.lastMissedRequests[xUsername];
 									return data;
 								} else if (response.status === 404) {
-									// Cache null for 404 responses
 									mappingCache.data[xUsername] = null;
 									mappingCache.timestamps[xUsername] = now;
+									delete mappingCache.lastMissedRequests[xUsername];
 									return { mapping: null };
 								}
 								throw new Error(`HTTP ${response.status}`);
 							} finally {
-								// Clean up pending request
 								delete mappingCache.pendingRequests[xUsername];
 							}
 						})();
 
-						// Store the promise
 						mappingCache.pendingRequests[xUsername] = requestPromise;
 
 						try {
@@ -174,7 +196,7 @@
 				
 				checkExistingMapping();
 			}, [xUsername, targetHandle]);
-
+			
 			// Rest of your component code remains the same...
 			const handleVerify = async () => {
 				if (!targetHandle) {
