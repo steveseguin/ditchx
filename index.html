@@ -194,39 +194,6 @@
 				checkExistingMapping();
 			}, [xUsername, targetHandle]);
 
-			const BlueskyHandleInput = ({ value, onChange }) => {
-			  // Extract the base handle without .bsky.social
-			  const baseHandle = value.replace('.bsky.social', '');
-			  const showSuffix = !value.includes('.') && value.length > 0;
-
-			  return (
-				<div className="relative">
-				  <input
-					type="text"
-					className="w-full px-4 py-3 border border-gray-200 rounded-lg input-focus"
-					placeholder="handle.bsky.social"
-					value={baseHandle}
-					onChange={(e) => {
-					  const newValue = e.target.value;
-					  if (!newValue.includes('.')) {
-						onChange({ target: { value: newValue } });
-					  } else {
-						onChange({ target: { value: newValue } });
-					  }
-					}}
-				  />
-				  {showSuffix && (
-					<span className="absolute text-gray-400 pointer-events-none" style={{ 
-					  left: `${8 + baseHandle.length * 8}px`,
-					  top: '50%',
-					  transform: 'translateY(-50%)'
-					}}>
-					  .bsky.social
-					</span>
-				  )}
-				</div>
-			  );
-			};
 			
 			// Rest of your component code remains the same...
 			const handleVerify = async () => {
@@ -488,20 +455,23 @@
                                 </div>
 
                                 <div>
-								  <label className="block text-sm font-semibold text-gray-700 mb-2">
-									Bluesky Handle
-								  </label>
-								  <BlueskyHandleInput
-									value={targetHandle}
-									onChange={handleTargetChange}
-								  />
-								  {targetHandle && (
-									<a href={generateDirectUrl()} target="_blank" rel="noopener noreferrer" 
-									   className="text-sm text-primary-600 hover:text-primary-700 mt-2 inline-block">
-									  {generateDirectUrl()}
-									</a>
-								  )}
-								</div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                        {platform === 'bluesky' ? 'Bluesky Handle' : 'Mastodon Handle'}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-3 border border-gray-200 rounded-lg input-focus"
+                                        placeholder={platform === 'bluesky' ? 'handle.bsky.social' : 'username@instance.social'}
+                                        value={targetHandle}
+                                        onChange={handleTargetChange}
+                                    />
+                                    {targetHandle && (
+                                        <a href={generateDirectUrl()} target="_blank" rel="noopener noreferrer" 
+                                           className="text-sm text-primary-600 hover:text-primary-700 mt-2 inline-block">
+                                            {generateDirectUrl()}
+                                        </a>
+                                    )}
+                                </div>
                             </div>
 
                             {targetHandle && (
