@@ -135,6 +135,9 @@
 			};
 
 			const ShortLinkSection = () => {
+				// Change this line to show verification needed when:
+				// 1. There is a target handle AND
+				// 2. Either there's no X username OR the handles don't match
 				const needsVerification = targetHandle && (!xUsername || xUsername !== targetHandle);
 				const shortLink = `ditchx.com/${targetHandle.replace('.bsky.social', '')}`;
 
