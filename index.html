@@ -195,10 +195,9 @@
 			}, [xUsername, targetHandle]);
 
 			const BlueskyHandleInput = ({ value, onChange }) => {
-			  // Extract the base handle without .bsky.social
 			  const baseHandle = value.replace('.bsky.social', '');
 			  const showSuffix = !value.includes('.') && value.length > 0;
-
+			  
 			  return (
 				<div className="relative">
 				  <input
@@ -216,11 +215,14 @@
 					}}
 				  />
 				  {showSuffix && (
-					<span className="absolute text-gray-400 pointer-events-none" style={{ 
-					  left: `${8 + baseHandle.length * 8}px`,
-					  top: '50%',
-					  transform: 'translateY(-50%)'
-					}}>
+					<span 
+					  className="absolute text-gray-400 pointer-events-none" 
+					  style={{
+						left: `${4 + (baseHandle.length * 0.6)}em`,
+						top: '50%',
+						transform: 'translateY(-50%)'
+					  }}
+					>
 					  .bsky.social
 					</span>
 				  )}
