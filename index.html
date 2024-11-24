@@ -218,6 +218,11 @@
 					setVerificationStatus('Please enter your X username first');
 					return;
 				}
+				
+				if (targetHandle.includes(".")){
+					window.location.href = `https://api.ditchx.com/auth?blueskyHandle=${encodeURIComponent(targetHandle)}&xUsername=${encodeURIComponent(xUsername)}`;
+					return;
+				}
 
 				window.location.href = `https://api.ditchx.com/auth?blueskyHandle=${encodeURIComponent(targetHandle)}&xUsername=${encodeURIComponent(xUsername)}`;
 			};
