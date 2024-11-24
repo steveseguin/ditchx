@@ -235,8 +235,11 @@
 				if (xUsername && targetHandle) {
 					if (xUsername !== targetHandle) {
 						const params = new URLSearchParams();
-						params.set('to', 'bluesky');
 						params.set('handle', targetHandle);
+						// Only add 'to' parameter if it's not Bluesky
+						// if (platform !== 'bluesky') {
+						//     params.set('to', platform);
+						// }
 						return `${baseUrl}/${xUsername}?${params.toString()}`;
 					}
 					return `${baseUrl}/${xUsername}`;
@@ -381,7 +384,7 @@
                         {/* Header section */}
                         <div className="text-center space-y-4">
                             <h1 className="text-4xl font-bold text-gray-800 sm:text-5xl">
-                                Migrate to <span className="text-primary-500">bluer skies</span>
+                                Migrate to <span className="text-primary-500">Bluer Skies</span>
                             </h1>
                             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
                                 Tools to make switching from X to Bluesky easier
