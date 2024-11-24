@@ -101,16 +101,15 @@
 		
 		<script type="text/babel">
         const SimpleRedirector = () => {
-            const { useState, useEffect } = React;
-            const [platform] = useState('bluesky');
-            const [xUsername, setXUsername] = useState('');
-            const [targetHandle, setTargetHandle] = useState('');
-            const [isVerified, setIsVerified] = useState(false);
-            const [verificationStatus, setVerificationStatus] = useState('');
-            const [verificationClass, setVerificationClass] = useState('');
-            const [copied, setCopied] = useState(false);
-            const [directPlatformUrl, setDirectPlatformUrl] = useState('');
-            const [error, setError] = useState('');
+            const platform = React.useState('bluesky')[0];
+            const [xUsername, setXUsername] = React.useState('');
+            const [targetHandle, setTargetHandle] = React.useState('');
+            const [isVerified, setIsVerified] = React.useState(false);
+            const [verificationStatus, setVerificationStatus] = React.useState('');
+            const [verificationClass, setVerificationClass] = React.useState('');
+            const [copied, setCopied] = React.useState(false);
+            const [directPlatformUrl, setDirectPlatformUrl] = React.useState('');
+            const [error, setError] = React.useState('');
 
             // Check URL parameters on mount
             useEffect(() => {
