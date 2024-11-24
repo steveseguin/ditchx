@@ -93,17 +93,17 @@
             const handleTargetChange = (e) => {
                 let value = e.target.value;
                 if (platform === 'bluesky') {
+                    value = value.replace(/\.bsky\.social$/, '');
                     if (value.includes('.')) {
-                        value = value.replace(/\.bsky\.social/g, '')
-                                    .replace(/\.+/g, '.')
-                                    .replace(/^\.+|\.+$/g, '');
-                        setTargetHandle(value);
+                        value = value.replace(/\.{2,}/g, '.')  // Replace multiple periods with single
+                                    .replace(/^\.+|\.+$/g, ''); // Remove leading/trailing periods
+                    } else {
+                        value = value.replace(/\./g, '');
+                    }
+                    setTargetHandle(value);
+                    if (value.includes('.')) {
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
                     } else {
-                        value = value.replace(/\.bsky\.social/g, '')
-                                    .replace(/\.+/g, '.')
-                                    .replace(/^\.+|\.+$/g, '');
-                        setTargetHandle(value);
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
                     }
                 } else if (platform === 'mastodon') {
