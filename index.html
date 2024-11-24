@@ -399,9 +399,13 @@
 				return `[Find me on ${platform}](${redirectUrl})`;
 			};
 
-			const generateHtmlSnippet = () => {
+			const generateHtmlSnippet = (preview) => {
 				const redirectUrl = generateRedirectUrl();
-				return `<a href="${redirectUrl}" style="color:blue;text-decoration:underline">Find me on ${platform}</a>`;
+				if (preview){
+					return `<a href="${redirectUrl}" style="color:blue;text-decoration:underline">Find me on ${platform}</a>`;
+				} else {
+					return `<a href="${redirectUrl}" >Find me on ${platform}</a>`;
+				}
 			};
 
             const SnippetSection = ({ title, code, preview }) => (
@@ -561,8 +565,8 @@
                                             <div className="space-y-8">
                                                 <SnippetSection 
                                                     title="HTML Snippet"
-                                                    code={generateHtmlSnippet()}
-                                                    preview={generateHtmlSnippet()}
+                                                    code={generateHtmlSnippet(false)}
+                                                    preview={generateHtmlSnippet(true)}
                                                 />
                                                 <SnippetSection 
                                                     title="Markdown Snippet"
