@@ -85,181 +85,184 @@
                 <polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/>
             </svg>
         );
-		const SimpleRedirector = () => {
-			const [platform] = useState('bluesky');
-			const [xUsername, setXUsername] = useState('');
-			const [targetHandle, setTargetHandle] = useState('');
-			const [isVerified, setIsVerified] = useState(false);
-			const [verificationStatus, setVerificationStatus] = useState('');
-			const [copied, setCopied] = useState(false);
-			const [directPlatformUrl, setDirectPlatformUrl] = useState('');
+
+	import { useState, useEffect } from 'react';
+
+	const SimpleRedirector = () => {
+		const [platform] = useState('bluesky');
+		const [xUsername, setXUsername] = useState('');
+		const [targetHandle, setTargetHandle] = useState('');
+		const [isVerified, setIsVerified] = useState(false);
+		const [verificationStatus, setVerificationStatus] = useState('');
+		const [copied, setCopied] = useState(false);
+		const [directPlatformUrl, setDirectPlatformUrl] = useState('');
+		
+		// Check for auth callback status
+		useEffect(() => {
+			const urlParams = new URLSearchParams(window.location.search);
+			const success = urlParams.get('success');
+			const error = urlParams.get('error');
 			
-			// Check for auth callback status
-			useEffect(() => {
-				const urlParams = new URLSearchParams(window.location.search);
-				const success = urlParams.get('success');
-				const error = urlParams.get('error');
-				
-				if (success) {
-					setVerificationStatus('Verification successful!');
-					setIsVerified(true);
-					// Clear the URL parameters
-					window.history.replaceState({}, '', window.location.pathname);
-				} else if (error) {
-					const errorMessages = {
-						'auth': 'Authentication failed. Please try again.',
-						'storage': 'Error storing verification. Please try again.',
-						'persistence': 'Error saving verification. Please try again.',
-						'missing-handle': 'Missing Bluesky handle. Please try again.'
-					};
-					setVerificationStatus(errorMessages[error] || 'Verification failed. Please try again.');
-					setIsVerified(false);
-					// Clear the URL parameters
-					window.history.replaceState({}, '', window.location.pathname);
-				}
-			}, []);
-
-			// Check existing mapping
-			useEffect(() => {
-				const checkExistingMapping = async () => {
-					if (xUsername && targetHandle) {
-						try {
-							const response = await fetch(`https://api.ditchx.com/mapping/${xUsername}`, {
-								credentials: 'omit' // Prevent CORS preflight
-							});
-							if (response.ok) {
-								const data = await response.json();
-								if (data.mapping === targetHandle) {
-									setIsVerified(true);
-								}
-							}
-						} catch (error) {
-							console.error('Error checking mapping:', error);
-						}
-					}
+			if (success) {
+				setVerificationStatus('Verification successful!');
+				setIsVerified(true);
+				// Clear the URL parameters
+				window.history.replaceState({}, '', window.location.pathname);
+			} else if (error) {
+				const errorMessages = {
+					'auth': 'Authentication failed. Please try again.',
+					'storage': 'Error storing verification. Please try again.',
+					'persistence': 'Error saving verification. Please try again.',
+					'missing-handle': 'Missing Bluesky handle. Please try again.'
 				};
-				
-				checkExistingMapping();
-			}, [xUsername, targetHandle]);
+				setVerificationStatus(errorMessages[error] || 'Verification failed. Please try again.');
+				setIsVerified(false);
+				// Clear the URL parameters
+				window.history.replaceState({}, '', window.location.pathname);
+			}
+		}, []);
 
-			const handleVerify = async () => {
-				if (!targetHandle) {
-					setVerificationStatus('Please enter your Bluesky handle first');
-					return;
-				}
-				if (!xUsername) {
-					setVerificationStatus('Please enter your X username first');
-					return;
-				}
-
-				// Redirect to Twitter auth with Bluesky handle as parameter
-				window.location.href = `https://api.ditchx.com/auth?blueskyHandle=${encodeURIComponent(targetHandle)}&xUsername=${encodeURIComponent(xUsername)}`;
-			};
-
-			const handleTargetChange = async (e) => {
-				let value = e.target.value;
-				setTargetHandle(value);
-				
-				if (platform === 'bluesky') {
-					if (value.includes('.')) {
-						setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
-					} else {
-						setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
-					}
-					
-					// Reset verification if handles don't match
-					if (xUsername && value !== xUsername) {
-						setIsVerified(false);
-					} else {
-						setIsVerified(true); // Auto-verify if handles match
-					}
-				}
-			};
-
-			const generateRedirectUrl = () => {
-				const baseUrl = window.location.origin;
-				
+		// Check existing mapping
+		useEffect(() => {
+			const checkExistingMapping = async () => {
 				if (xUsername && targetHandle) {
-					if (xUsername !== targetHandle) {
-						const params = new URLSearchParams();
-						params.set('to', 'bluesky');
-						params.set('handle', targetHandle);
-						return `${baseUrl}/from/${xUsername}?${params.toString()}`;
+					try {
+						const response = await fetch(`https://api.ditchx.com/mapping/${xUsername}`, {
+							credentials: 'omit' // Prevent CORS preflight
+						});
+						if (response.ok) {
+							const data = await response.json();
+							if (data.mapping === targetHandle) {
+								setIsVerified(true);
+							}
+						}
+					} catch (error) {
+						console.error('Error checking mapping:', error);
 					}
-					return `${baseUrl}/${xUsername}`;
+				}
+			};
+			
+			checkExistingMapping();
+		}, [xUsername, targetHandle]);
+
+		const handleVerify = async () => {
+			if (!targetHandle) {
+				setVerificationStatus('Please enter your Bluesky handle first');
+				return;
+			}
+			if (!xUsername) {
+				setVerificationStatus('Please enter your X username first');
+				return;
+			}
+
+			// Redirect to Twitter auth with Bluesky handle as parameter
+			window.location.href = `https://api.ditchx.com/auth?blueskyHandle=${encodeURIComponent(targetHandle)}&xUsername=${encodeURIComponent(xUsername)}`;
+		};
+
+		const handleTargetChange = async (e) => {
+			let value = e.target.value;
+			setTargetHandle(value);
+			
+			if (platform === 'bluesky') {
+				if (value.includes('.')) {
+					setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
+				} else {
+					setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
 				}
 				
-				return `${baseUrl}/${targetHandle}`;
-			};
-
-			const formatUsername = (username) => {
-				return username.replace(/^@|@/g, '').trim();
-			};
-
-			const handleUsernameChange = (e) => {
-				const value = formatUsername(e.target.value);
-				setXUsername(value);
-				// Reset verification status when username changes
-				setIsVerified(value === targetHandle);
-			};
-
-			const copyToClipboard = async (text) => {
-				try {
-					await navigator.clipboard.writeText(text);
-					setCopied(true);
-					setTimeout(() => setCopied(false), 2000);
-				} catch (err) {
-					console.error('Failed to copy:', err);
+				// Reset verification if handles don't match
+				if (xUsername && value !== xUsername) {
+					setIsVerified(false);
+				} else {
+					setIsVerified(true); // Auto-verify if handles match
 				}
-			};
+			}
+		};
 
-			const ShortLinkSection = () => {
-				const needsVerification = xUsername && targetHandle && xUsername !== targetHandle;
-				const shortLink = `ditchx.com/${targetHandle.replace('.bsky.social', '')}`;
+		const generateRedirectUrl = () => {
+			const baseUrl = window.location.origin;
+			
+			if (xUsername && targetHandle) {
+				if (xUsername !== targetHandle) {
+					const params = new URLSearchParams();
+					params.set('to', 'bluesky');
+					params.set('handle', targetHandle);
+					return `${baseUrl}/from/${xUsername}?${params.toString()}`;
+				}
+				return `${baseUrl}/${xUsername}`;
+			}
+			
+			return `${baseUrl}/${targetHandle}`;
+		};
 
-				return (
-					<div>
-						<h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
-						<div className="space-y-4">
-							<div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-								<code className="flex-1 font-mono text-sm break-all text-gray-700">
-									{shortLink}
-								</code>
-								<button
-									disabled={!isVerified && needsVerification}
-									onClick={() => copyToClipboard(shortLink)}
-									className={`p-2 rounded-full transition-colors duration-200 ${
-										!isVerified && needsVerification 
-											? 'text-gray-400 cursor-not-allowed' 
-											: 'hover:bg-gray-200 text-gray-600'
-									}`}
-									title={!isVerified && needsVerification ? "Verification required" : "Copy to clipboard"}
-								>
-									<Copy size={18} />
-								</button>
-							</div>
-							
-							{needsVerification && !isVerified && (
-								<div className="flex flex-col gap-3">
-									<button
-										onClick={handleVerify}
-										className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-									>
-										Verify with X
-									</button>
-									{verificationStatus && (
-										<div className={`text-sm ${
-											isVerified ? 'text-green-600' : 'text-red-600'
-										}`}>
-											{verificationStatus}
-										</div>
-									)}
-								</div>
-							)}
+		const formatUsername = (username) => {
+			return username.replace(/^@|@/g, '').trim();
+		};
+
+		const handleUsernameChange = (e) => {
+			const value = formatUsername(e.target.value);
+			setXUsername(value);
+			// Reset verification status when username changes
+			setIsVerified(value === targetHandle);
+		};
+
+		const copyToClipboard = async (text) => {
+			try {
+				await navigator.clipboard.writeText(text);
+				setCopied(true);
+				setTimeout(() => setCopied(false), 2000);
+			} catch (err) {
+				console.error('Failed to copy:', err);
+			}
+		};
+
+		const ShortLinkSection = () => {
+			const needsVerification = xUsername && targetHandle && xUsername !== targetHandle;
+			const shortLink = `ditchx.com/${targetHandle.replace('.bsky.social', '')}`;
+
+			return (
+				<div>
+					<h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
+					<div className="space-y-4">
+						<div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+							<code className="flex-1 font-mono text-sm break-all text-gray-700">
+								{shortLink}
+							</code>
+							<button
+								disabled={!isVerified && needsVerification}
+								onClick={() => copyToClipboard(shortLink)}
+								className={`p-2 rounded-full transition-colors duration-200 ${
+									!isVerified && needsVerification 
+										? 'text-gray-400 cursor-not-allowed' 
+										: 'hover:bg-gray-200 text-gray-600'
+								}`}
+								title={!isVerified && needsVerification ? "Verification required" : "Copy to clipboard"}
+							>
+								<Copy size={18} />
+							</button>
 						</div>
+						
+						{needsVerification && !isVerified && (
+							<div className="flex flex-col gap-3">
+								<button
+									onClick={handleVerify}
+									className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+								>
+									Verify with X
+								</button>
+								{verificationStatus && (
+									<div className={`text-sm ${
+										isVerified ? 'text-green-600' : 'text-red-600'
+									}`}>
+										{verificationStatus}
+									</div>
+								)}
+							</div>
+						)}
 					</div>
-				);
-			};
+				</div>
+			);
+		};
 			
             const SnippetSection = ({ title, code, preview }) => (
                 <div>
