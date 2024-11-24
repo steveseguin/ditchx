@@ -6,11 +6,9 @@
     <title>DitchX - Social Platform Redirector</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%230ea5e9;stop-opacity:1'/%3E%3Cstop offset='100%25' style='stop-color:%230369a1;stop-opacity:1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='4' width='24' height='24' rx='6' fill='url(%23grad)'/%3E%3Cpath d='M10 16 L16 22 L22 16 L19 16 L16 19 L13 16 Z' fill='white'/%3E%3Cpath d='M10 12 L16 18 L22 12' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
     
-    <!-- Meta tags -->
     <meta name="title" content="DitchX - Migrate to Bluesky in One Click">
     <meta name="description" content="Ready for bluer skies? Easily migrate your followers from X to Bluesky with a simple redirect link. No login required.">
     
-    <!-- Scripts -->
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
@@ -86,25 +84,28 @@
                 <polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/>
             </svg>
         );
-
         const SimpleRedirector = () => {
             const [platform, setPlatform] = React.useState('bluesky');
             const [xUsername, setXUsername] = React.useState('');
             const [targetHandle, setTargetHandle] = React.useState('');
             const [copied, setCopied] = React.useState(false);
             const [directPlatformUrl, setDirectPlatformUrl] = React.useState('');
-        
             const handleTargetChange = (e) => {
                 let value = e.target.value;
-                
                 if (platform === 'bluesky') {
-                    // Remove any existing .bsky.social suffixes and clean up
-                    value = value.replace(/\.bsky\.social/g, '')
-                                .replace(/\.+/g, '.')
-                                .replace(/^\.+|\.+$/g, '');
-                    
-                    setTargetHandle(value);
-                    setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
+                    if (value.includes('.')) {
+                        value = value.replace(/\.bsky\.social/g, '')
+                                    .replace(/\.+/g, '.')
+                                    .replace(/^\.+|\.+$/g, '');
+                        setTargetHandle(value);
+                        setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
+                    } else {
+                        value = value.replace(/\.bsky\.social/g, '')
+                                    .replace(/\.+/g, '.')
+                                    .replace(/^\.+|\.+$/g, '');
+                        setTargetHandle(value);
+                        setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
+                    }
                 } else if (platform === 'mastodon') {
                     setTargetHandle(value);
                     if (value.includes('@')) {
@@ -115,44 +116,38 @@
                     }
                 }
             };
-        
             const generateRedirectUrl = () => {
                 const baseUrl = window.location.origin;
-                
-                // For Bluesky, just use the simple format
                 if (platform === 'bluesky') {
                     return `${baseUrl}/${targetHandle}`;
                 }
-                
-                // For Mastodon, use the explicit routing format
                 const params = new URLSearchParams();
                 params.set('to', platform);
                 params.set('handle', targetHandle);
                 return `${baseUrl}/from/${xUsername}?${params.toString()}`;
             };
-        
             const formatUsername = (username) => {
                 return username.replace(/^@|@/g, '').trim();
             };
-        
             const handleUsernameChange = (e) => {
                 const value = formatUsername(e.target.value);
                 setXUsername(value);
             };
-        
-        const generateDirectUrl = () => {
-            if (platform === 'bluesky') {
-                return `https://bsky.app/profile/${targetHandle}.bsky.social`;
-            } else if (platform === 'mastodon') {
-                if (targetHandle.includes('@')) {
-                    const [user, instance] = targetHandle.split('@');
-                    return `https://${instance}/@${user}`;
+            const generateDirectUrl = () => {
+                if (platform === 'bluesky') {
+                    if (targetHandle.includes('.')) {
+                        return `https://bsky.app/profile/${targetHandle}`;
+                    }
+                    return `https://bsky.app/profile/${targetHandle}.bsky.social`;
+                } else if (platform === 'mastodon') {
+                    if (targetHandle.includes('@')) {
+                        const [user, instance] = targetHandle.split('@');
+                        return `https://${instance}/@${user}`;
+                    }
+                    return targetHandle.startsWith('http') ? targetHandle : `https://${targetHandle}`;
                 }
-                return targetHandle.startsWith('http') ? targetHandle : `https://${targetHandle}`;
-            }
-            return '';
-        };
-        
+                return '';
+            };
             const copyToClipboard = async (text) => {
                 try {
                     await navigator.clipboard.writeText(text);
@@ -162,12 +157,10 @@
                     console.error('Failed to copy:', err);
                 }
             };
-        
             const generateMarkdownSnippet = () => {
                 const redirectUrl = generateRedirectUrl();
                 return `[Find me on ${platform}](${redirectUrl})`;
             };
-
             const generateHtmlSnippet = () => {
                 const redirectUrl = generateRedirectUrl();
                 return `<a href="${redirectUrl}">Find me on ${platform}</a>`;
