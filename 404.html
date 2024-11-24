@@ -40,37 +40,29 @@
                 const statusElement = document.getElementById('status');
                 
                 function buildDestinationUrl(baseUrl) {
-                    // If it's already a full URL, don't modify it
                     if (baseUrl.startsWith('http')) return baseUrl;
-                    
                     const url = new URL(`https://${baseUrl}`);
                     url.searchParams.append('ref', encodeURIComponent(referrer));
                     return url.toString();
                 }
                 
-                function processHandle(handle, type) {
-                    // Remove any protocol if present
+                function processHandle(handle, type = 'bluesky') {
                     handle = handle.replace(/^https?:\/\//, '');
                     
                     if (type === 'bluesky') {
-                        // If handle already contains .bsky.social, use it as is
                         if (handle.includes('.bsky.social')) { 
                             return buildDestinationUrl(`bsky.app/profile/${handle}`);
                         }
-                        // If handle contains any domain, assume it's complete
                         if (handle.includes('.')) {
                             return buildDestinationUrl(`bsky.app/profile/${handle}`);
                         }
-                        // Otherwise, append .bsky.social
                         return buildDestinationUrl(`bsky.app/profile/${handle}.bsky.social`);
                     } else if (type === 'mastodon') {
                         if (handle.includes('@')) {
-                            // Handle @user@instance.com format
                             const cleanHandle = handle.startsWith('@') ? handle.slice(1) : handle;
                             const [user, instance] = cleanHandle.split('@');
                             return buildDestinationUrl(`${instance}/@${user}`);
                         } else if (handle.includes('.')) {
-                            // If it contains a period, assume it's a domain
                             return buildDestinationUrl(handle);
                         }
                     }
@@ -82,17 +74,15 @@
                 const to = params.get('to');
                 const handle = params.get('handle');
                 
-                if (to && handle) {
-                    // Direct parameter-based redirect
-                    if (to === 'bluesky' || to === 'mastodon') {
-                        window.location.href = processHandle(handle, to);
-                        return;
-                    }
+                if (handle) {
+                    // Only specify platform type if it's not Bluesky
+                    window.location.href = processHandle(handle, to || 'bluesky');
+                    return;
                 }
                 
                 // If path is too short, default to Bluesky
                 if (path.length < 2) {
-                    window.location.href = processHandle(path, 'bluesky');
+                    window.location.href = processHandle(path);
                     return;
                 }
                 
@@ -110,7 +100,7 @@
                         }
                     } else if (response.status === 404) {
                         // No mapping found, default to Bluesky
-                        window.location.href = processHandle(path, 'bluesky');
+                        window.location.href = processHandle(path);
                         return;
                     } else {
                         throw new Error(`API error: ${response.status}`);
@@ -118,7 +108,7 @@
                 } catch (error) {
                     console.error('Error fetching mapping:', error);
                     // On API error, still try to redirect to Bluesky
-                    window.location.href = processHandle(path, 'bluesky');
+                    window.location.href = processHandle(path);
                 }
                 
             } catch (error) {
