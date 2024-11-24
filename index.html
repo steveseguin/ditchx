@@ -93,17 +93,15 @@
         
             const handleTargetChange = (e) => {
                 let value = e.target.value;
+                setTargetHandle(value);
                 
                 if (platform === 'bluesky') {
-                    setTargetHandle(value);
-                    
                     if (value.includes('.')) {
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
                     } else {
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
                     }
                 } else if (platform === 'mastodon') {
-                    setTargetHandle(value);
                     if (value.includes('@')) {
                         const [user, instance] = value.split('@');
                         setDirectPlatformUrl(`https://${instance}/@${user}`);
@@ -115,6 +113,13 @@
 
             const generateRedirectUrl = () => {
                 const baseUrl = window.location.origin;
+            
+                if (xUsername && targetHandle) {
+                    const params = new URLSearchParams();
+                    params.set('to', 'bluesky');
+                    params.set('handle', targetHandle);
+                    return `${baseUrl}/from/${xUsername}?${params.toString()}`;
+                }
                 
                 if (platform === 'bluesky') {
                     return `${baseUrl}/${targetHandle}`;
