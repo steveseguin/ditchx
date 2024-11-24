@@ -59,7 +59,7 @@
                         }
                         // If handle contains any domain, assume it's complete
                         if (handle.includes('.')) {
-                            return buildDestinationUrl(handle);
+                            return buildDestinationUrl(`bsky.app/profile/${handle}`);
                         }
                         // Otherwise, append .bsky.social
                         return buildDestinationUrl(`bsky.app/profile/${handle}.bsky.social`);
