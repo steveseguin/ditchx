@@ -216,19 +216,16 @@
 			const handleTargetChange = async (e) => {
 				let value = e.target.value;
 				setTargetHandle(value);
+				// Clear verification status and error when handle changes
+				setIsVerified(false);
+				setVerificationStatus('');
+				setError('');
 				
 				if (platform === 'bluesky') {
 					if (value.includes('.')) {
 						setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
 					} else {
 						setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
-					}
-					
-					// Only set as verified if there's an X username and it matches
-					if (xUsername && value === xUsername) {
-						setIsVerified(true);
-					} else {
-						setIsVerified(false);
 					}
 				}
 			};
@@ -277,8 +274,10 @@
 			const handleUsernameChange = (e) => {
 				const value = formatUsername(e.target.value);
 				setXUsername(value);
-				// Reset verification status when username changes
-				setIsVerified(value === targetHandle);
+				// Clear verification status and error when username changes
+				setIsVerified(false);
+				setVerificationStatus('');
+				setError('');
 			};
 
 			const copyToClipboard = async (text) => {
