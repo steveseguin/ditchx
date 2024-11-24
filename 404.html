@@ -55,7 +55,7 @@
                     if (type === 'bluesky') {
                         // If handle already contains .bsky.social, use it as is
                         if (handle.includes('.bsky.social')) { 
-                            return buildDestinationUrl(handle);
+                            return buildDestinationUrl(`bsky.app/profile/${handle}`);
                         }
                         // If handle contains any domain, assume it's complete
                         if (handle.includes('.')) {
@@ -100,26 +100,30 @@
                     }
                 }
                 
-                // Try to fetch mappings from JSON file
+                // Try to fetch mapping from API
                 try {
-                    //const firstChar = path.charAt(0).toLowerCase();
-                    //const secondChar = path.charAt(1).toLowerCase();
-                    const response = await fetch(`/data.json`);
+                    const username = path.toLowerCase();
+                    const response = await fetch(`https://api.ditchx.com/mapping/${username}`);
                     
                     if (response.ok) {
-                        const mappings = await response.json();
-                        if (mappings[path]) {
-                            window.location.href = processHandle(mappings[path], 
-                                mappings[path].includes('@') ? 'mastodon' : 'bluesky');
+                        const data = await response.json();
+                        if (data.mapping) {
+                            window.location.href = processHandle(data.mapping, 
+                                data.mapping.includes('@') ? 'mastodon' : 'bluesky');
                             return;
                         }
+                    } else if (response.status === 404) {
+                        // No mapping found, default to Bluesky
+                        window.location.href = processHandle(path, 'bluesky');
+                        return;
+                    } else {
+                        throw new Error(`API error: ${response.status}`);
                     }
                 } catch (error) {
-                    console.error('Error fetching mappings:', error);
+                    console.error('Error fetching mapping:', error);
+                    // On API error, still try to redirect to Bluesky
+                    window.location.href = processHandle(path, 'bluesky');
                 }
-                
-                // Default fallback - direct to Bluesky
-                window.location.href = processHandle(path, 'bluesky');
                 
             } catch (error) {
                 console.error('Redirect error:', error);
