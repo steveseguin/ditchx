@@ -95,53 +95,36 @@
 			const [copied, setCopied] = useState(false);
 			const [directPlatformUrl, setDirectPlatformUrl] = useState('');
 			
-			// Enhanced cache with last missed request tracking
+			// Cache for mapping data and request timestamps
 			const mappingCache = useRef({
 				data: {},
 				timestamps: {},
 				pendingRequests: {},
-				lastMissedRequests: {}, // Track requests that came during cache period
+				lastRequestTime: {},
 				CACHE_DURATION: 5000, // 5 seconds
 			}).current;
 
-			// Check existing mapping with improved caching and last request handling
+			// Check existing mapping with throttling
 			useEffect(() => {
 				const checkExistingMapping = async () => {
 					if (xUsername && targetHandle) {
-						// Check cache first
 						const now = Date.now();
-						const cachedMapping = mappingCache.data[xUsername];
-						const cachedTimestamp = mappingCache.timestamps[xUsername];
-						
-						if (cachedMapping !== undefined && cachedTimestamp) {
-							const cacheAge = now - cachedTimestamp;
-							if (cacheAge < mappingCache.CACHE_DURATION) {
-								// Cache is still valid
+
+						// Check if we're still in throttle period
+						const lastRequest = mappingCache.lastRequestTime[xUsername];
+						if (lastRequest && (now - lastRequest < mappingCache.CACHE_DURATION)) {
+							// Still in throttle period - use cached data if available
+							const cachedMapping = mappingCache.data[xUsername];
+							if (cachedMapping !== undefined) {
 								if (cachedMapping === targetHandle) {
 									setIsVerified(true);
 								}
-								// Store this as the last request that came during cache period
-								mappingCache.lastMissedRequests[xUsername] = {
-									timestamp: now,
-									targetHandle
-								};
 								return;
-							} else {
-								// Cache expired - check if we have a missed request to process
-								const missedRequest = mappingCache.lastMissedRequests[xUsername];
-								if (missedRequest && missedRequest.timestamp > cachedTimestamp) {
-									// Clear the missed request as we're about to process it
-									delete mappingCache.lastMissedRequests[xUsername];
-									// Continue with the request...
-								} else {
-									// No missed request - clear cache and continue
-									delete mappingCache.data[xUsername];
-									delete mappingCache.timestamps[xUsername];
-								}
 							}
+							return; // Still in throttle period with no cache - do nothing
 						}
 
-						// Handle pending requests
+						// If there's already a pending request, wait for it
 						if (mappingCache.pendingRequests[xUsername]) {
 							try {
 								const data = await mappingCache.pendingRequests[xUsername];
@@ -154,6 +137,9 @@
 							return;
 						}
 
+						// Update last request time before making new request
+						mappingCache.lastRequestTime[xUsername] = now;
+
 						// Create a new request and store its promise
 						const requestPromise = (async () => {
 							try {
@@ -161,18 +147,12 @@
 									credentials: 'omit'
 								});
 								
-								// Cache both successful and 404 responses
 								if (response.ok) {
 									const data = await response.json();
 									mappingCache.data[xUsername] = data.mapping;
-									mappingCache.timestamps[xUsername] = now;
-									// Clear any missed requests as we just got fresh data
-									delete mappingCache.lastMissedRequests[xUsername];
 									return data;
 								} else if (response.status === 404) {
 									mappingCache.data[xUsername] = null;
-									mappingCache.timestamps[xUsername] = now;
-									delete mappingCache.lastMissedRequests[xUsername];
 									return { mapping: null };
 								}
 								throw new Error(`HTTP ${response.status}`);
