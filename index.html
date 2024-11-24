@@ -90,18 +90,47 @@
             const [targetHandle, setTargetHandle] = React.useState('');
             const [copied, setCopied] = React.useState(false);
             const [directPlatformUrl, setDirectPlatformUrl] = React.useState('');
+            const [mappingVerified, setMappingVerified] = React.useState(false);
+            const [checkingMapping, setCheckingMapping] = React.useState(false);
         
-            const handleTargetChange = (e) => {
+            // Add function to check mapping in data.json
+            const checkMapping = async (xUser, bskyHandle) => {
+                setCheckingMapping(true);
+                try {
+                    const response = await fetch('/data.json');
+                    if (response.ok) {
+                        const mappings = await response.json();
+                        const isVerified = mappings[xUser] === bskyHandle;
+                        setMappingVerified(isVerified);
+                        return isVerified;
+                    }
+                    setMappingVerified(false);
+                    return false;
+                } catch (error) {
+                    console.error('Error checking mapping:', error);
+                    setMappingVerified(false);
+                    return false;
+                } finally {
+                    setCheckingMapping(false);
+                }
+            };
+        
+            const handleTargetChange = async (e) => {
                 let value = e.target.value;
                 setTargetHandle(value);
                 
                 if (platform === 'bluesky') {
                     if (value.includes('.')) {
-                        // For custom domains, use as is
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
                     } else {
-                        // For regular handles, always append .bsky.social
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
+                    }
+                    
+                    // If we have both handles and they don't match, check mapping
+                    if (xUsername && value !== xUsername) {
+                        await checkMapping(xUsername, value);
+                    } else {
+                        setMappingVerified(true); // Automatically verified if handles match
                     }
                 } else if (platform === 'mastodon') {
                     if (value.includes('@')) {
