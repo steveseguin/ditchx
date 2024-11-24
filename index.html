@@ -193,6 +193,24 @@
 				return `${baseUrl}/${targetHandle}`;
 			};
 
+			const generateDirectUrl = () => {
+                if (platform === 'bluesky') {
+                    if (targetHandle.includes('.')) {
+                        // For custom domains, use as is
+                        return `https://bsky.app/profile/${targetHandle}`;
+                    }
+                    // For regular handles, always append .bsky.social
+                    return `https://bsky.app/profile/${targetHandle}.bsky.social`;
+                } else if (platform === 'mastodon') {
+                    if (targetHandle.includes('@')) {
+                        const [user, instance] = targetHandle.split('@');
+                        return `https://${instance}/@${user}`;
+                    }
+                    return targetHandle.startsWith('http') ? targetHandle : `https://${targetHandle}`;
+                }
+                return '';
+            };
+			
 			const formatUsername = (username) => {
 				return username.replace(/^@|@/g, '').trim();
 			};
