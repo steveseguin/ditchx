@@ -102,9 +102,9 @@
                 
                 // Try to fetch mappings from JSON file
                 try {
-                    const firstChar = path.charAt(0).toLowerCase();
-                    const secondChar = path.charAt(1).toLowerCase();
-                    const response = await fetch(`/data/${firstChar}/${secondChar}.json`);
+                    #const firstChar = path.charAt(0).toLowerCase();
+                    #const secondChar = path.charAt(1).toLowerCase();
+                    const response = await fetch(`/data.json`);
                     
                     if (response.ok) {
                         const mappings = await response.json();
