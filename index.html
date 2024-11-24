@@ -99,59 +99,65 @@
             </svg>
         );
 		
-		const SimpleRedirector = () => {
-			const { useState, useEffect, useRef } = React;
-			const [platform] = useState('bluesky');
-			const [xUsername, setXUsername] = useState('');
-			const [targetHandle, setTargetHandle] = useState('');
-			const [isVerified, setIsVerified] = useState(false);
-			const [verificationStatus, setVerificationStatus] = useState('');
-			const [copied, setCopied] = useState(false);
-			const [directPlatformUrl, setDirectPlatformUrl] = useState('');
-			const [error, setError] = useState('');
+		<script type="text/babel">
+        const SimpleRedirector = () => {
+            const { useState, useEffect } = React;
+            const [platform] = useState('bluesky');
+            const [xUsername, setXUsername] = useState('');
+            const [targetHandle, setTargetHandle] = useState('');
+            const [isVerified, setIsVerified] = useState(false);
+            const [verificationStatus, setVerificationStatus] = useState('');
+            const [verificationClass, setVerificationClass] = useState('');
+            const [copied, setCopied] = useState(false);
+            const [directPlatformUrl, setDirectPlatformUrl] = useState('');
+            const [error, setError] = useState('');
 
-			// Check URL parameters on mount
-			useEffect(() => {
-				const params = new URLSearchParams(window.location.search);
-				const returnedUsername = params.get('username');
-				const returnedHandle = params.get('handle');
-				const success = params.get('success') === 'true';
-				const error = params.get('error');
+            // Check URL parameters on mount
+            useEffect(() => {
+                const params = new URLSearchParams(window.location.search);
+                const returnedUsername = params.get('username');
+                const returnedHandle = params.get('handle');
+                const success = params.get('success') === 'true';
+                const error = params.get('error');
 
-				if (returnedUsername && returnedHandle) {
-					// If user had entered a different X username before auth
-					if (xUsername && xUsername !== returnedUsername) {
-						setError(`The X account you signed into (${returnedUsername}) doesn't match the username you entered (${xUsername}). Using the authenticated account.`);
-					}
+                if (returnedUsername && returnedHandle) {
+                    // If user had entered a different X username before auth
+                    if (xUsername && xUsername !== returnedUsername) {
+                        setError(`The X account you signed into (${returnedUsername}) doesn't match the username you entered (${xUsername}). Using the authenticated account.`);
+                    }
 
-					// Always use the returned values from authentication
-					setXUsername(returnedUsername);
-					setTargetHandle(returnedHandle);
-					
-					if (success) {
-						setIsVerified(true);
-						setVerificationStatus('Account successfully linked with X');
-					} else if (error === 'persistence') {
-						setError('Account verified but there was an error saving the mapping. Please try again.');
-						setIsVerified(false);
-					} else if (error) {
-						setError(`There was an error: ${error}. Please try again.`);
-						setIsVerified(false);
-					}
+                    // Always use the returned values from authentication
+                    setXUsername(returnedUsername);
+                    setTargetHandle(returnedHandle);
+                    
+                    if (success) {
+                        setIsVerified(true);
+                        setVerificationStatus('Account successfully linked with X');
+                        setVerificationClass('text-green-600');
+                    } else if (error === 'persistence') {
+                        setError('Account verified but there was an error saving the mapping. Please try again.');
+                        setIsVerified(false);
+                        setVerificationClass('text-red-600');
+                    } else if (error) {
+                        setError(`There was an error: ${error}. Please try again.`);
+                        setIsVerified(false);
+                        setVerificationClass('text-red-600');
+                    }
 
-					// Clear the URL parameters without refreshing
-					window.history.replaceState({}, '', window.location.pathname);
-				}
-			}, []);
+                    // Clear the URL parameters without refreshing
+                    window.history.replaceState({}, '', window.location.pathname);
+                }
+            }, []);
 
 			const handleVerify = async () => {
-				if (!targetHandle) {
-					setVerificationStatus('Please enter your Bluesky handle first');
-					return;
-				}
+                if (!targetHandle) {
+                    setVerificationStatus('Please enter your Bluesky handle first');
+                    setVerificationClass('text-red-600');
+                    return;
+                }
 
-				window.location.href = `https://api.ditchx.com/auth?blueskyHandle=${encodeURIComponent(targetHandle)}`;
-			};
+                window.location.href = `https://api.ditchx.com/auth?blueskyHandle=${encodeURIComponent(targetHandle)}`;
+            };
 
 			const ShortLinkSection = () => {
 				// Change this line to show verification needed when:
@@ -214,21 +220,22 @@
 			};
 
 			const handleTargetChange = async (e) => {
-				let value = e.target.value;
-				setTargetHandle(value);
-				// Clear verification status and error when handle changes
-				setIsVerified(false);
-				setVerificationStatus('');
-				setError('');
-				
-				if (platform === 'bluesky') {
-					if (value.includes('.')) {
-						setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
-					} else {
-						setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
-					}
-				}
-			};
+                let value = e.target.value;
+                setTargetHandle(value);
+                // Clear verification status and error when handle changes
+                setIsVerified(false);
+                setVerificationStatus('');
+                setVerificationClass('');
+                setError('');
+                
+                if (platform === 'bluesky') {
+                    if (value.includes('.')) {
+                        setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
+                    } else {
+                        setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
+                    }
+                }
+            };
 
 			const generateRedirectUrl = () => {
 				const baseUrl = window.location.origin;
@@ -268,18 +275,19 @@
             };
 			
 			const formatUsername = (username) => {
-				return username.replace(/^@|@/g, '').trim();
-			};
+                return username.replace(/^@|@/g, '').trim();
+            };
 
 			const handleUsernameChange = (e) => {
-				const value = formatUsername(e.target.value);
-				setXUsername(value);
-				// Clear verification status and error when username changes
-				setIsVerified(false);
-				setVerificationStatus('');
-				setError('');
-			};
-
+                const value = formatUsername(e.target.value);
+                setXUsername(value);
+                // Clear verification status and error when username changes
+                setIsVerified(false);
+                setVerificationStatus('');
+                setVerificationClass('');
+                setError('');
+            };
+			
 			const copyToClipboard = async (text) => {
 				try {
 					await navigator.clipboard.writeText(text);
@@ -400,17 +408,15 @@
 										onChange={handleUsernameChange}
 									/>
 									{xUsername && isVerified && (
-										<div className="mt-2 text-sm text-green-600">
+										<div className="mt-2 text-green-600">
 											✓ Verified with X
 										</div>
 									)}
-									{xUsername && (
-										<a href={`https://twitter.com/${xUsername}`} 
-										   target="_blank" 
-										   rel="noopener noreferrer" 
-										   className="text-sm text-primary-600 hover:text-primary-700 mt-2 inline-block">
-											https://twitter.com/{xUsername}
-										</a>
+									
+									{verificationStatus && (
+										<div className={verificationClass}>
+											{verificationStatus}
+										</div>
 									)}
 								</div>
 
