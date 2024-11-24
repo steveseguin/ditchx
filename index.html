@@ -216,7 +216,7 @@
                 const shortLink = platform === 'bluesky' ? 
                     `ditchx.com/${targetHandle.replace('.bsky.social', '')}` : 
                     generateRedirectUrl();
-        
+            
                 if (needsVerification && !mappingVerified) {
                     return (
                         <div>
@@ -245,6 +245,24 @@
                         </div>
                     );
                 }
+            
+                // Add the default return case
+                return (
+                    <div>
+                        <h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
+                        <div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <code className="flex-1 font-mono text-sm break-all text-gray-700">{shortLink}</code>
+                            <button
+                                onClick={() => copyToClipboard(shortLink)}
+                                className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200"
+                                title="Copy to clipboard"
+                            >
+                                <Copy size={18} className="text-gray-600" />
+                            </button>
+                        </div>
+                    </div>
+                );
+            };
             const SnippetSection = ({ title, code, preview }) => (
                 <div>
                     <h3 className="font-semibold text-gray-800 mb-3">{title}</h3>
