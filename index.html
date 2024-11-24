@@ -237,7 +237,7 @@
 						const params = new URLSearchParams();
 						params.set('to', 'bluesky');
 						params.set('handle', targetHandle);
-						return `${baseUrl}/from/${xUsername}?${params.toString()}`;
+						return `${baseUrl}/${xUsername}?${params.toString()}`;
 					}
 					return `${baseUrl}/${xUsername}`;
 				}
