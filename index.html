@@ -90,17 +90,13 @@
             const [targetHandle, setTargetHandle] = React.useState('');
             const [copied, setCopied] = React.useState(false);
             const [directPlatformUrl, setDirectPlatformUrl] = React.useState('');
+        
             const handleTargetChange = (e) => {
                 let value = e.target.value;
+                
                 if (platform === 'bluesky') {
-                    value = value.replace(/\.bsky\.social$/, '');
-                    if (value.includes('.')) {
-                        value = value.replace(/\.{2,}/g, '.')  // Replace multiple periods with single
-                                    .replace(/^\.+|\.+$/g, ''); // Remove leading/trailing periods
-                    } else {
-                        value = value.replace(/\./g, '');
-                    }
                     setTargetHandle(value);
+                    
                     if (value.includes('.')) {
                         setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
                     } else {
@@ -116,15 +112,21 @@
                     }
                 }
             };
-            const generateRedirectUrl = () => {
-                const baseUrl = window.location.origin;
+        
+            const generateDirectUrl = () => {
                 if (platform === 'bluesky') {
-                    return `${baseUrl}/${targetHandle}`;
+                    if (targetHandle.includes('.')) {
+                        return `https://bsky.app/profile/${targetHandle}`;
+                    }
+                    return `https://bsky.app/profile/${targetHandle}.bsky.social`;
+                } else if (platform === 'mastodon') {
+                    if (targetHandle.includes('@')) {
+                        const [user, instance] = targetHandle.split('@');
+                        return `https://${instance}/@${user}`;
+                    }
+                    return targetHandle.startsWith('http') ? targetHandle : `https://${targetHandle}`;
                 }
-                const params = new URLSearchParams();
-                params.set('to', platform);
-                params.set('handle', targetHandle);
-                return `${baseUrl}/from/${xUsername}?${params.toString()}`;
+                return '';
             };
             const formatUsername = (username) => {
                 return username.replace(/^@|@/g, '').trim();
