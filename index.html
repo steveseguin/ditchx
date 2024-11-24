@@ -99,7 +99,7 @@
             </svg>
         );
         const SimpleRedirector = () => {
-            const { useState, useEffect } = React;
+            const { useState, useEffect, useRef} = React;
             const [platform] = useState('bluesky');
             const [xUsername, setXUsername] = useState('');
             const [targetHandle, setTargetHandle] = useState('');
