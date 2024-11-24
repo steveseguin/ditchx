@@ -302,22 +302,29 @@
 					<div>
 						<h3 className="font-semibold text-gray-800 mb-3">Short Link</h3>
 						<div className="space-y-4">
-							<div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-								<code className="flex-1 font-mono text-sm break-all text-gray-700">
-									{shortLink}
-								</code>
-								<button
-									disabled={!isVerified && needsVerification}
-									onClick={() => copyToClipboard(shortLink)}
-									className={`p-2 rounded-full transition-colors duration-200 ${
-										!isVerified && needsVerification 
-											? 'text-gray-400 cursor-not-allowed' 
-											: 'hover:bg-gray-200 text-gray-600'
-									}`}
-									title={!isVerified && needsVerification ? "Verification required" : "Copy to clipboard"}
-								>
-									<Copy size={18} />
-								</button>
+							<div className="relative">
+								<div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
+									<code className={`flex-1 font-mono text-sm break-all ${needsVerification && !isVerified ? 'text-gray-400' : 'text-gray-700'}`}>
+										{shortLink}
+									</code>
+									<button
+										disabled={!isVerified && needsVerification}
+										onClick={() => copyToClipboard(shortLink)}
+										className={`p-2 rounded-full transition-colors duration-200 ${
+											!isVerified && needsVerification 
+												? 'text-gray-400 cursor-not-allowed' 
+												: 'hover:bg-gray-200 text-gray-600'
+										}`}
+										title={!isVerified && needsVerification ? "Verification required" : "Copy to clipboard"}
+									>
+										<Copy size={18} />
+									</button>
+								</div>
+								{needsVerification && !isVerified && (
+									<div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 rounded-lg">
+										<span className="text-sm text-gray-600 font-medium">Accounts are not linked yet</span>
+									</div>
+								)}
 							</div>
 							
 							{needsVerification && !isVerified && (
@@ -326,7 +333,7 @@
 										onClick={handleVerify}
 										className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
 									>
-										Verify with X
+										Link Accounts
 									</button>
 									{verificationStatus && (
 										<div className={`text-sm ${
@@ -374,15 +381,12 @@
                         {/* Header section */}
                         <div className="text-center space-y-4">
                             <h1 className="text-4xl font-bold text-gray-800 sm:text-5xl">
-                                Migrate to Bluesky <span className="text-primary-500">in One Click</span>
+                                Migrate to <span className="text-primary-500">bluer skies</span>
                             </h1>
                             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                                Tools to make migrating from X to Bluesky easier
+                                Tools to make switching from X to Bluesky easier
                                 {' '}<a href="https://bsky.app" className="text-primary-600 hover:text-primary-700 font-medium" target="_blank" rel="noopener noreferrer">Go to Bluesky →</a>
                             </p>
-                            <div className="inline-block bg-primary-50 rounded-full px-6 py-2 text-primary-700 text-sm">
-                                Pro tip: Simply type ditchx.com/<span className="font-mono font-medium">username</span> to jump straight to BlueSky
-                            </div>
                         </div>
 
                         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 space-y-8">
