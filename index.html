@@ -375,6 +375,31 @@
 					hasUserEditedHandle.current = true;
 				}
 			};
+						
+			const handleTargetChange = async (e) => {
+				let value = e.target.value;
+				setTargetHandle(value);
+				
+				// Track manual edits
+				if (!targetHandleFocused) {
+					hasUserEditedHandle.current = true;
+				}
+				
+				// Clear all verification states
+				setIsVerified(false);
+				setVerificationStatus('');
+				setVerificationClass('');
+				setError('');
+				
+				// Update direct URL
+				if (platform === 'bluesky') {
+					if (value.includes('.')) {
+						setDirectPlatformUrl(`https://bsky.app/profile/${value}`);
+					} else {
+						setDirectPlatformUrl(`https://bsky.app/profile/${value}.bsky.social`);
+					}
+				}
+			};
 
 			const generateRedirectUrl = () => {
 				const baseUrl = window.location.origin;
