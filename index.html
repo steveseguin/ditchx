@@ -717,7 +717,7 @@
 										onChange={handleUsernameChange}
 									/>
 									{xUsername && isVerified && verificationStatus && (
-										<div className="mt-2 text-green-600" className={verificationClass}>
+										<div style="mt-2 text-green-600" className={verificationClass}>
 											✓ {verificationStatus}
 										</div>
 									)}
@@ -798,6 +798,7 @@
                                 </ol>
                             </div>
                         </div>
+                    </div>
 					<ComingSoonSection />
                 </div>
             );
