@@ -646,7 +646,7 @@
 
             return (
                 <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
-                    <div className="max-w-3xl mx-auto space-y-10">
+					<div className="max-w-3xl mx-auto space-y-10">
                         {/* Header section */}
                         <div className="text-center space-y-4">
 							<div className="flex items-center justify-center gap-4">
@@ -785,22 +785,23 @@
                                         </>
                                     )}
                                 </div>
-                            )}
+							)}
+						</div>
 
-                            <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
-                                <ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
-                                    <li>Enter your X username and your Bluesky platform handle</li>
-									<li>Optional: Sign in with X to validate ownership</li>
-                                    <li>Copy your new redirect link or HTML/Markdown snippet</li>
-                                    <li>Share it in your X bio or posts</li>
-                                    <li>Visitors will be redirected to your new profile</li>
-                                </ol>
-                            </div>
-                        </div>
-                    </div>
+						<div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+							<h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
+							<ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
+								<li>Enter your X username and your Bluesky platform handle</li>
+								<li>Optional: Sign in with X to validate ownership</li>
+								<li>Copy your new redirect link or HTML/Markdown snippet</li>
+								<li>Share it in your X bio or posts</li>
+								<li>Visitors will be redirected to your new profile</li>
+							</ol>
+						</div>
+					</div>
+					
 					<ComingSoonSection />
-                </div>
+				</div>
             );
         };
 
