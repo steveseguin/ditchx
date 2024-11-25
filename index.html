@@ -98,17 +98,17 @@
                 <polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/>
             </svg>
         );
-        const SimpleRedirector = () => {
-            const { useState, useEffect, useRef} = React;
-            const [platform] = useState('bluesky');
-            const [xUsername, setXUsername] = useState('');
-            const [targetHandle, setTargetHandle] = useState('');
-            const [isVerified, setIsVerified] = useState(false);
-            const [verificationStatus, setVerificationStatus] = useState('');
-            const [verificationClass, setVerificationClass] = useState('');
-            const [copied, setCopied] = useState(false);
-            const [directPlatformUrl, setDirectPlatformUrl] = useState('');
-            const [error, setError] = useState('');
+		const SimpleRedirector = () => {
+			const { useState, useEffect, useRef } = React;
+			const [platform] = useState('bluesky');
+			const [xUsername, setXUsername] = useState('');
+			const [targetHandle, setTargetHandle] = useState('');
+			const [isVerified, setIsVerified] = useState(false);
+			const [verificationStatus, setVerificationStatus] = useState('');
+			const [verificationClass, setVerificationClass] = useState('');
+			const [copied, setCopied] = useState(false);
+			const [directPlatformUrl, setDirectPlatformUrl] = useState('');
+			const [error, setError] = useState('');
 			const targetHandleRef = useRef(null);
 			const lookupTimeoutRef = useRef(null);
 			const [targetHandleFocused, setTargetHandleFocused] = useState(false);
@@ -236,20 +236,18 @@
 					if (xUsername && targetHandle) {
 						const now = Date.now();
 
-						// Clear any existing timeout for this username
 						if (mappingCache.timeoutIds[xUsername]) {
 							clearTimeout(mappingCache.timeoutIds[xUsername]);
 							delete mappingCache.timeoutIds[xUsername];
 						}
 
-						// Check if we're still in throttle period
 						const lastRequest = mappingCache.lastRequestTime[xUsername];
 						if (lastRequest && (now - lastRequest < mappingCache.CACHE_DURATION)) {
-							// Still in throttle period - use cached data if available
 							const cachedMapping = mappingCache.data[xUsername];
 							if (cachedMapping !== undefined) {
 								if (cachedMapping === targetHandle) {
-									if (data.satire) {
+									const cachedData = mappingCache.data[xUsername];
+									if (cachedData && cachedData.satire) {
 										setVerificationStatus(getRandomSatiricalMessage());
 										setVerificationClass('text-purple-600 mt-2');
 									} else {
@@ -261,24 +259,26 @@
 								return;
 							}
 
-							// Set up a check for when the throttle period ends
 							const timeRemaining = mappingCache.CACHE_DURATION - (now - lastRequest);
-							mappingCache.pendingRequests[xUsername] = true; // Mark that we want to make a request
+							mappingCache.pendingRequests[xUsername] = true;
 							
 							mappingCache.timeoutIds[xUsername] = setTimeout(async () => {
 								if (mappingCache.pendingRequests[xUsername]) {
-									// Make the request after throttle period
 									mappingCache.lastRequestTime[xUsername] = Date.now();
-									const data = await makeRequest(xUsername);
-									if (data.mapping === targetHandle) {
-										if (data.satire) {
-											setVerificationStatus(getRandomSatiricalMessage());
-											setVerificationClass('text-purple-600');
-										} else {
-											setVerificationStatus('Verified with X');
-											setVerificationClass('text-green-600');
+									try {
+										const response = await makeRequest(xUsername);
+										if (response && response.mapping === targetHandle) {
+											if (response.satire) {
+												setVerificationStatus(getRandomSatiricalMessage());
+												setVerificationClass('text-purple-600');
+											} else {
+												setVerificationStatus('Verified with X');
+												setVerificationClass('text-green-600');
+											}
+											setIsVerified(true);
 										}
-										setIsVerified(true);
+									} catch (error) {
+										console.error('Error in delayed request:', error);
 									}
 								}
 							}, timeRemaining);
@@ -286,13 +286,12 @@
 							return;
 						}
 
-						// If we're here, we're not in the throttle period
 						mappingCache.lastRequestTime[xUsername] = now;
 						
 						try {
-							const data = await makeRequest(xUsername);
-							if (data.mapping === targetHandle) {
-								if (data.satire) {
+							const response = await makeRequest(xUsername);
+							if (response && response.mapping === targetHandle) {
+								if (response.satire) {
 									setVerificationStatus(getRandomSatiricalMessage());
 									setVerificationClass('text-purple-600');
 								} else {
