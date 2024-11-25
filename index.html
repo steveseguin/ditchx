@@ -795,14 +795,14 @@
 				"When you accidentally hit X instead of Tweet and just commit to it",
 				"Plot twist: The X stands for 'eXtremely expensive purchase'",
 				"Because sometimes you need to X-plain yourself to shareholders",
-				"X Xer: Because 'Twitter User' was too mainstream",
-				"X Xer: When you're too X-tra for just one X",
+				"X: Because 'Twitter User' was too mainstream",
+				"X: When you're too X-tra for just one X",
 				"The artist formerly known as Tweeter",
-				"X Xer: Because 'Social Media User' is so 2022"
+				"X: Because 'Social Media User' is so 2022"
 			];
 
 			// Print the X logo with random colors
-			console.log('\n'); // Add some spacing
+			console.log('\nWelcome\n'); // Add some spacing
 			xArt.forEach(line => {
 				const randomColor = Object.values(colors)[Math.floor(Math.random() * (Object.keys(colors).length - 1))];
 				console.log(`${randomColor}${line.padStart(30)}${colors.reset}`);
