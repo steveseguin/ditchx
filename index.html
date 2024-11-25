@@ -325,7 +325,8 @@
 				// - verified OR
 				// - handles match (no verification needed)
 				const showLink = isVerified || (xUsername === targetHandle);
-				const shortLink = `ditchx.com/${targetHandle.replace('.bsky.social', '')}`;
+				// Fix: Use xUsername instead of targetHandle for the short link
+				const shortLink = `ditchx.com/${xUsername}`;
 
 				return (
 					<div>
