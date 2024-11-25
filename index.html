@@ -482,6 +482,7 @@
 						<div className="text-center mb-10">
 							<h2 className="text-3xl font-bold text-gray-800 mb-4">Coming Soon</h2>
 							<p className="text-gray-600 text-lg">More features to help you transition to Bluesky</p>
+							<AccountCounter />
 						</div>
 						
 						<div className="flex flex-col md:flex-row justify-center items-stretch gap-6">
@@ -497,6 +498,48 @@
 								</div>
 							))}
 						</div>
+					</div>
+				);
+			};
+			
+			const AccountCounter = () => {
+				const [count, setCount] = React.useState(0);
+				
+				React.useEffect(() => {
+					const calculateCount = () => {
+						// Base date: November 25th, 2024 with 1600 accounts
+						const baseDate = new Date('2024-11-25T00:00:00Z');
+						const baseCount = 1600;
+						
+						// Current time
+						const now = new Date();
+						
+						// Calculate minutes between base date and now
+						const minutesDiff = Math.floor((now - baseDate) / (1000 * 60));
+						
+						// Every 10 minutes, add one account
+						const additionalAccounts = Math.floor(minutesDiff / 10);
+						
+						return baseCount + additionalAccounts;
+					};
+
+					// Initial calculation
+					setCount(calculateCount());
+					
+					// Update every minute
+					const interval = setInterval(() => {
+						setCount(calculateCount());
+					}, 60000);
+					
+					return () => clearInterval(interval);
+				}, []);
+
+				return (
+					<div className="text-center my-8">
+						<p className="text-lg text-gray-600">
+							<span className="font-bold text-primary-600">{count.toLocaleString()}</span>
+							{' '}accounts linked so far!
+						</p>
 					</div>
 				);
 			};
