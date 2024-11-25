@@ -256,6 +256,10 @@
             };
 
 			const ShortLinkSection = () => {
+				// Show link if:
+				// - verified OR
+				// - handles match (no verification needed)
+				const showLink = isVerified || (xUsername === targetHandle);
 				const shortLink = `ditchx.com/${targetHandle.replace('.bsky.social', '')}`;
 
 				return (
@@ -264,17 +268,29 @@
 						<div className="space-y-4">
 							<div className="relative">
 								<div className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg border border-gray-200">
-									<code className="flex-1 font-mono text-sm break-all text-gray-700">
+									<code className={`flex-1 font-mono text-sm break-all ${showLink ? 'text-gray-700' : 'text-gray-400'}`}>
 										{shortLink}
 									</code>
 									<button
+										disabled={!showLink}
 										onClick={() => copyToClipboard(shortLink)}
-										className="p-2 hover:bg-gray-200 rounded-full transition-colors duration-200 text-gray-600"
-										title="Copy to clipboard"
+										className={`p-2 rounded-full transition-colors duration-200 ${
+											showLink 
+												? 'hover:bg-gray-200 text-gray-600' 
+												: 'text-gray-400 cursor-not-allowed'
+										}`}
+										title={!showLink ? "Verification required" : "Copy to clipboard"}
 									>
 										<Copy size={18} />
 									</button>
 								</div>
+								{!showLink && (
+									<div className="absolute inset-0 flex items-center justify-center bg-gray-50/70 rounded-lg">
+										<span className="text-sm text-gray-600 font-medium">
+											Accounts are not linked yet. Verify your X account to obtain your short link.
+										</span>
+									</div>
+								)}
 							</div>
 							
 							{!isVerified && (
