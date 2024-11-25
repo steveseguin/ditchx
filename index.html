@@ -136,10 +136,10 @@
                         setIsVerified(true);
 						if (satire) {
 							setVerificationStatus(getRandomSatiricalMessage());
-							setVerificationClass('text-green-600 mt-2');
+							setVerificationClass('text-purple-600');
 						} else {
 							setVerificationStatus('Verified with X');
-							setVerificationClass('text-green-600 mt-2');
+							setVerificationClass('text-green-600');
 						}
                     } else if (error === 'persistence') {
                         setError('Account verified but there was an error saving the mapping. Please try again.');
@@ -180,15 +180,21 @@
 				"Verified by powers Elon wishes he had",
 				"Verified by their ex",
 				"Verified by the ghost of Twitter past",
+				"Verified by three kids in a trench coat",
+				"Verified by the committee of imaginary friends",
 				"Verified by that one person who still likes X",
 				"Verified by the prophecy",
 				"Verified by trust me bro",
 				"Verified by the Council of Memes",
 				"Verified by alternative facts",
 				"Verified by the highest bidder",
+				"Verified by your future self",
 				"Verified by the simulation admins",
 				"Verified by confused carrier pigeons",
+				"Verified by time-traveling historians",
 				"Verified by definitely not AI",
+				"Verified by the department of silly walks",
+				"Verified by professional procrastinators",
 				"Verified by the internet's collective wisdom"
 			];
 
@@ -646,7 +652,7 @@
 
             return (
                 <div className="min-h-screen px-4 py-12 sm:px-6 lg:px-8">
-					<div className="max-w-3xl mx-auto space-y-10">
+                    <div className="max-w-3xl mx-auto space-y-10">
                         {/* Header section */}
                         <div className="text-center space-y-4">
 							<div className="flex items-center justify-center gap-4">
@@ -707,8 +713,9 @@
 									{error}
 								</div>
 							)}
-							<div>
-								<label className="block text-sm font-semibold text-gray-700 mb-2">Your X Username</label>
+							<div className="space-y-6">
+								<div>
+									<label className="block text-sm font-semibold text-gray-700 mb-2">Your X Username</label>
 									<input
 										type="text"
 										className="w-full px-4 py-3 border border-gray-200 rounded-lg input-focus"
@@ -716,7 +723,7 @@
 										value={xUsername}
 										onChange={handleUsernameChange}
 									/>
-									{xUsername && isVerified && verificationStatus && (
+									{verificationStatus && (
 										<div className={verificationClass}>
 											✓ {verificationStatus}
 										</div>
@@ -785,23 +792,22 @@
                                         </>
                                     )}
                                 </div>
-							)}
-						</div>
+                            )}
 
-						<div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
-							<h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
-							<ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
-								<li>Enter your X username and your Bluesky platform handle</li>
-								<li>Optional: Sign in with X to validate ownership</li>
-								<li>Copy your new redirect link or HTML/Markdown snippet</li>
-								<li>Share it in your X bio or posts</li>
-								<li>Visitors will be redirected to your new profile</li>
-							</ol>
-						</div>
-					</div>
-					
+                            <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-6">How it works</h2>
+                                <ol className="list-decimal list-inside space-y-3 text-gray-600 ml-4">
+                                    <li>Enter your X username and your Bluesky platform handle</li>
+									<li>Optional: Sign in with X to validate ownership</li>
+                                    <li>Copy your new redirect link or HTML/Markdown snippet</li>
+                                    <li>Share it in your X bio or posts</li>
+                                    <li>Visitors will be redirected to your new profile</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
 					<ComingSoonSection />
-				</div>
+                </div>
             );
         };
 
