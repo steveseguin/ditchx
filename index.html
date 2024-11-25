@@ -136,10 +136,10 @@
                         setIsVerified(true);
 						if (satire) {
 							setVerificationStatus(getRandomSatiricalMessage());
-							setVerificationClass('text-purple-600');
+							setVerificationClass('text-green-600 mt-2');
 						} else {
 							setVerificationStatus('Verified with X');
-							setVerificationClass('text-green-600');
+							setVerificationClass('text-green-600 mt-2');
 						}
                     } else if (error === 'persistence') {
                         setError('Account verified but there was an error saving the mapping. Please try again.');
@@ -717,7 +717,7 @@
 										onChange={handleUsernameChange}
 									/>
 									{xUsername && isVerified && verificationStatus && (
-										<div style="mt-2 text-green-600" className={verificationClass}>
+										<div className={verificationClass}>
 											✓ {verificationStatus}
 										</div>
 									)}
