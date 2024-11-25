@@ -367,14 +367,6 @@
 				setVerificationClass('');
 				setError('');
 			};
-
-			// Update handle change to track manual entry
-			const handleTargetChange = (e) => {
-				setTargetHandle(e.target.value);
-				if (!targetHandleFocused) {
-					hasUserEditedHandle.current = true;
-				}
-			};
 						
 			const handleTargetChange = async (e) => {
 				let value = e.target.value;
@@ -772,5 +764,61 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<SimpleRedirector />);
     </script>
+	<script>
+		const printColorfulX = () => {
+			// ANSI escape codes for colors
+			const colors = {
+				blue: '\x1b[34m',
+				cyan: '\x1b[36m',
+				green: '\x1b[32m',
+				red: '\x1b[31m',
+				reset: '\x1b[0m',
+				yellow: '\x1b[33m',
+				magenta: '\x1b[35m'
+			};
+
+			// ASCII art for X Xer
+			const xArt = [
+				"\\    /  \\    /            ",
+				" \\  /    \\  /    ___      ",
+				"  \\/      \\/    |   \\     ",
+				"  /\\      /\\    |___|     ",
+				" /  \\    /  \\   |    \\    ",
+				"/    \\  /    \\  |     \\   "
+			];
+
+			// Funny messages about the Twitter/X rebrand
+			const messages = [
+				"Because 'Twitter' was too many characters for a minimalist...",
+				"Elon's keyboard got stuck on X - might as well roll with it!",
+				"Maybe he just really likes playing Tic-Tac-Toe?",
+				"When you accidentally hit X instead of Tweet and just commit to it",
+				"Plot twist: The X stands for 'eXtremely expensive purchase'",
+				"Because sometimes you need to X-plain yourself to shareholders",
+				"X Xer: Because 'Twitter User' was too mainstream",
+				"X Xer: When you're too X-tra for just one X",
+				"The artist formerly known as Tweeter",
+				"X Xer: Because 'Social Media User' is so 2022"
+			];
+
+			// Print the X logo with random colors
+			console.log('\n'); // Add some spacing
+			xArt.forEach(line => {
+				const randomColor = Object.values(colors)[Math.floor(Math.random() * (Object.keys(colors).length - 1))];
+				console.log(`${randomColor}${line.padStart(30)}${colors.reset}`);
+			});
+			
+			// Print random funny message
+			const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+			console.log('\n' + colors.cyan + randomMessage + colors.reset + '\n');
+
+			// Add a timestamp signature with X Xer branding
+			const date = new Date().toLocaleDateString();
+			console.log(colors.yellow + `X Xer (formerly known as Twitter User) - ${date}` + colors.reset + '\n');
+		};
+
+		// Run the function
+		printColorfulX();
+	</script>
 </body>
 </html>
