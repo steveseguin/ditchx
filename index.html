@@ -114,14 +114,15 @@
 			const [targetHandleFocused, setTargetHandleFocused] = useState(false);
 
             // Check URL parameters on mount
-            useEffect(() => {
-                const params = new URLSearchParams(window.location.search);
-                const returnedUsername = params.get('username');
-                const returnedHandle = params.get('handle');
-                const success = params.get('success') === 'true';
-                const error = params.get('error');
+			useEffect(() => {
+				const params = new URLSearchParams(window.location.search);
+				const returnedUsername = params.get('username');
+				const returnedHandle = params.get('handle');
+				const success = params.get('success') === 'true';
+				const error = params.get('error');
+				const satire = params.get('satire') === 'true';  // Add this line
 
-                if (returnedUsername && returnedHandle) {
+				if (returnedUsername && returnedHandle) {
                     // If user had entered a different X username before auth
                     if (xUsername && xUsername !== returnedUsername) {
                         setError(`The X account you signed into (${returnedUsername}) doesn't match the username you entered (${xUsername}). Using the authenticated account.`);
@@ -133,8 +134,13 @@
                     
                     if (success) {
                         setIsVerified(true);
-                        setVerificationStatus('Account successfully linked with X');
-                        setVerificationClass('text-green-600');
+						if (satire) {
+							setVerificationStatus(getRandomSatiricalMessage());
+							setVerificationClass('text-purple-600');
+						} else {
+							setVerificationStatus('Verified with X');
+							setVerificationClass('text-green-600');
+						}
                     } else if (error === 'persistence') {
                         setError('Account verified but there was an error saving the mapping. Please try again.');
                         setIsVerified(false);
@@ -168,6 +174,35 @@
 					});
 				};
 			}, []);
+			
+			const satiricalMessages = [
+				"Verified by 33 hungry rats",
+				"Verified by powers Elon wishes he had",
+				"Verified by their ex",
+				"Verified by the ghost of Twitter past",
+				"Verified by three kids in a trench coat",
+				"Verified by the committee of imaginary friends",
+				"Verified by that one person who still likes X",
+				"Verified by the prophecy",
+				"Verified by trust me bro",
+				"Verified by the Council of Memes",
+				"Verified by alternative facts",
+				"Verified by the highest bidder",
+				"Verified by your future self",
+				"Verified by the simulation admins",
+				"Verified by confused carrier pigeons",
+				"Verified by time-traveling historians",
+				"Verified by definitely not AI",
+				"Verified by the department of silly walks",
+				"Verified by professional procrastinators",
+				"Verified by the internet's collective wisdom"
+			];
+
+			// Function to get a random satirical message
+			const getRandomSatiricalMessage = () => {
+				const randomIndex = Math.floor(Math.random() * satiricalMessages.length);
+				return satiricalMessages[randomIndex];
+			};
 			
 			const lookupMapping = async (username) => {
 				try {
@@ -223,6 +258,13 @@
 							const cachedMapping = mappingCache.data[xUsername];
 							if (cachedMapping !== undefined) {
 								if (cachedMapping === targetHandle) {
+									if (data.satire) {
+										setVerificationStatus(getRandomSatiricalMessage());
+										setVerificationClass('text-purple-600');
+									} else {
+										setVerificationStatus('Verified with X');
+										setVerificationClass('text-green-600');
+									}
 									setIsVerified(true);
 								}
 								return;
@@ -238,6 +280,13 @@
 									mappingCache.lastRequestTime[xUsername] = Date.now();
 									const data = await makeRequest(xUsername);
 									if (data.mapping === targetHandle) {
+										if (data.satire) {
+											setVerificationStatus(getRandomSatiricalMessage());
+											setVerificationClass('text-purple-600');
+										} else {
+											setVerificationStatus('Verified with X');
+											setVerificationClass('text-green-600');
+										}
 										setIsVerified(true);
 									}
 								}
@@ -252,6 +301,13 @@
 						try {
 							const data = await makeRequest(xUsername);
 							if (data.mapping === targetHandle) {
+								if (data.satire) {
+									setVerificationStatus(getRandomSatiricalMessage());
+									setVerificationClass('text-purple-600');
+								} else {
+									setVerificationStatus('Verified with X');
+									setVerificationClass('text-green-600');
+								}
 								setIsVerified(true);
 							}
 						} catch (error) {
