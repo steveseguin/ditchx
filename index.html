@@ -120,7 +120,7 @@
 				const returnedHandle = params.get('handle');
 				const success = params.get('success') === 'true';
 				const error = params.get('error');
-				const satire = params.get('satire') === 'true';  // Add this line
+				const satire = params.get('satire') === 'true';
 
 				if (returnedUsername && returnedHandle) {
                     // If user had entered a different X username before auth
@@ -158,12 +158,12 @@
 			
 			// Cache for mapping data and request timestamps
 			const mappingCache = useRef({
-				data: {},
+				data: {}, // Will now store the full response object, not just the mapping string
 				timestamps: {},
 				pendingRequests: {},
 				lastRequestTime: {},
-				timeoutIds: {}, // Store timeout IDs to clean them up
-				CACHE_DURATION: 5000, // 5 seconds
+				timeoutIds: {},
+				CACHE_DURATION: 5000,
 			}).current;
 
 			// Cleanup timeouts on unmount
@@ -218,7 +218,8 @@
 					
 					if (response.ok) {
 						const data = await response.json();
-						mappingCache.data[username] = data.mapping;
+						// Store the full response object in cache
+						mappingCache.data[username] = data;
 						return data;
 					} else if (response.status === 404) {
 						mappingCache.data[username] = null;
@@ -236,6 +237,7 @@
 					if (xUsername && targetHandle) {
 						const now = Date.now();
 
+						// Clear existing timeout
 						if (mappingCache.timeoutIds[xUsername]) {
 							clearTimeout(mappingCache.timeoutIds[xUsername]);
 							delete mappingCache.timeoutIds[xUsername];
@@ -243,16 +245,15 @@
 
 						const lastRequest = mappingCache.lastRequestTime[xUsername];
 						if (lastRequest && (now - lastRequest < mappingCache.CACHE_DURATION)) {
-							const cachedMapping = mappingCache.data[xUsername];
-							if (cachedMapping !== undefined) {
-								if (cachedMapping === targetHandle) {
-									const cachedData = mappingCache.data[xUsername];
-									if (cachedData && cachedData.satire) {
+							const cachedData = mappingCache.data[xUsername];
+							if (cachedData) {
+								if (cachedData.mapping === targetHandle) {
+									if (cachedData.satire) {
 										setVerificationStatus(getRandomSatiricalMessage());
-										setVerificationClass('text-purple-600 mt-2');
+										setVerificationClass('text-purple-600');
 									} else {
 										setVerificationStatus('Verified with X');
-										setVerificationClass('text-green-600 mt-2');
+										setVerificationClass('text-green-600');
 									}
 									setIsVerified(true);
 								}
@@ -266,9 +267,9 @@
 								if (mappingCache.pendingRequests[xUsername]) {
 									mappingCache.lastRequestTime[xUsername] = Date.now();
 									try {
-										const response = await makeRequest(xUsername);
-										if (response && response.mapping === targetHandle) {
-											if (response.satire) {
+										const responseData = await makeRequest(xUsername);
+										if (responseData && responseData.mapping === targetHandle) {
+											if (responseData.satire) {
 												setVerificationStatus(getRandomSatiricalMessage());
 												setVerificationClass('text-purple-600');
 											} else {
@@ -289,9 +290,9 @@
 						mappingCache.lastRequestTime[xUsername] = now;
 						
 						try {
-							const response = await makeRequest(xUsername);
-							if (response && response.mapping === targetHandle) {
-								if (response.satire) {
+							const responseData = await makeRequest(xUsername);
+							if (responseData && responseData.mapping === targetHandle) {
+								if (responseData.satire) {
 									setVerificationStatus(getRandomSatiricalMessage());
 									setVerificationClass('text-purple-600');
 								} else {
